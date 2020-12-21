@@ -1,6 +1,7 @@
 *.db
 *.sh
 legacy/
+bathwater.html
 bot_webserver.py
 screen_command.txt
 screenlog
