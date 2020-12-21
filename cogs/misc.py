@@ -640,6 +640,10 @@ class Misc(Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def test(self, ctx):
+        await ctx.send(":flushed:")
+
 
 def setup(bot: utils.Bot):
     """Entry point for bot.load_extension."""
