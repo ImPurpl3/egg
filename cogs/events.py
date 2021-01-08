@@ -105,22 +105,22 @@ class Events(Cog):
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         """Fired each time a message is sent."""
-        channel = message.channel
+        # channel = message.channel
 
-        if channel.id == 662063429879595009:
-            contents = [message.activity, message.application, message.attachments,
-                        message.embeds, message.content != "E"]
-            if message.author.id == self.previous_e_author or any(i for i in contents):
-                return await message.delete()
+        # if channel.id == 662063429879595009:
+        #     contents = [message.activity, message.application, message.attachments,
+        #                 message.embeds, message.content != "E"]
+        #     if message.author.id == self.previous_e_author or any(i for i in contents):
+        #         return await message.delete()
 
-            self.previous_e_author = message.author.id
+        #     self.previous_e_author = message.author.id
 
         if message.content.lower() == "gg":
             await message.add_reaction("\N{NEGATIVE SQUARED LATIN CAPITAL LETTER B}\ufe0f")
 
     @Cog.listener()
     async def on_raw_message_delete(self, payload: discord.RawMessageDeleteEvent):
-        """Fired when a reaction is added to a message the bot can see."""
+        """Fired when a message is deleted."""
         if payload.guild_id != 527932145273143306:
             return
 
@@ -169,7 +169,7 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_raw_message_edit(self, payload: discord.RawMessageUpdateEvent):
-        """Fired when a reaction is removed from a message the bot can see."""
+        """Fired when a message is edited."""
         if not payload.cached_message:
             guild = self.bot.get_guild(527932145273143306)
             member = guild.get_member(int(payload.data["author"]["id"]))
@@ -203,9 +203,9 @@ class Events(Cog):
             if not message.guild or message.guild.id != 527932145273143306:
                 return
 
-            if message.channel.id == 662063429879595009:
-                if payload.data["content"] != "E":
-                    await message.delete()
+            # if message.channel.id == 662063429879595009:
+            #     if payload.data["content"] != "E":
+            #         await message.delete()
 
             if not payload.data.get("content") or message.content == payload.data["content"]:
                 return
@@ -224,12 +224,12 @@ class Events(Cog):
         embed.description = f"[Jump to message]({jump_url})"
         await self.bot.get_channel(662438467204153354).send(embed=embed)
 
-    @Cog.listener()
-    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        if payload.channel_id == 662063429879595009:
-            channel = self.bot.get_channel(payload.channel_id)
-            message = await channel.fetch_message(payload.message_id)
-            await message.remove_reaction(payload.emoji, payload.member)
+    # @Cog.listener()
+    # async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+    #     if payload.channel_id == 662063429879595009:
+    #         channel = self.bot.get_channel(payload.channel_id)
+    #         message = await channel.fetch_message(payload.message_id)
+    #         await message.remove_reaction(payload.emoji, payload.member)
 
 
 def setup(bot: utils.Bot):
