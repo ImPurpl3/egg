@@ -56,7 +56,7 @@ class Misc(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
 
-        with open("colors_lower.json", "r", encoding="utf-8") as f:
+        with open("./assets/json/colors_lower.json", "r", encoding="utf-8") as f:
             self.colors = json.load(f)
 
     @commands.command()
