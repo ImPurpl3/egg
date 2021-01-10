@@ -80,7 +80,7 @@ class RoleCategory:
     async def remove_entry(self, entry: CategoryEntry):
         self.entries.remove(entry)
         entry_list = "\n".join(str(i) for i in self.entries)
-        content = f"**{self.title}:**\n{entry_list}"
+        content = f"{self.title}\n{entry_list}"
 
         await self.message.edit(content=content)
         await self.message.clear_reaction(entry.emoji)
@@ -138,8 +138,9 @@ class Roles(Cog):
     @roles.command()
     @commands.has_permissions(administrator=True)
     async def newcategory(self, ctx: Context, name: str, *, title: str):
+        title = f"**{title}:**"
         channel = self.bot.get_channel(self.channel_id)
-        message = await channel.send(f"**{title}:**")
+        message = await channel.send(title)
 
         await self.bot.db.execute(
             "INSERT INTO r_categories (name, message_id) VALUES (?, ?)",
