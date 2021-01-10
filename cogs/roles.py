@@ -67,7 +67,7 @@ class RoleCategory:
 
     async def add_entry(self, entry: CategoryEntry):
         content = f"{self.message.content}\n{entry}"
-        await self.message.edit()
+        await self.message.edit(content=content)
 
 
 class Roles(Cog):
