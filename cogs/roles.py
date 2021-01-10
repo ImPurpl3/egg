@@ -36,7 +36,10 @@ class CategoryEntry:
 
     def __init__(self, emoji: str, description: str):
         self.description = description
-        self.emoji = self.emoji
+        self.emoji = emoji
+
+    def __str__(self) -> str:
+        return f"{self.emoji}: {self.description}"
 
     @classmethod
     def from_string(cls, line: str):
@@ -57,10 +60,14 @@ class RoleCategory:
         content: str = self.message.content
         lines = [i for i in content.split("\n") if i]
 
-        self.title = lines[0]
+        self.title = lines.pop(0)
 
-        for line in lines[1:]:
+        for line in lines:
             self.roles.append(CategoryEntry.from_string(line))
+
+    async def add_entry(self, entry: CategoryEntry):
+        content = f"{self.message.content}\n{entry}"
+        await self.message.edit()
 
 
 class Roles(Cog):
@@ -124,8 +131,7 @@ class Roles(Cog):
     async def new(self, ctx: Context, category: str, role: Role, emoji: str, *, text: str):
         category = await self.get_category(category)
         entry = CategoryEntry(emoji, text)
-
-    
+        await category.add_entry(entry)
 
 
     async def handle_reaction(self, payload: RawReactionActionEvent):
