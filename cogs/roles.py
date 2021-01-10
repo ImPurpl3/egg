@@ -76,7 +76,7 @@ class RoleCategory:
         self.entries.append(entry)
 
     async def remove_entry(self, entry: CategoryEntry):
-        entry_list = "\n".join(str(i) for i in self.entries))
+        entry_list = "\n".join(str(i) for i in self.entries)
         content = f"**{self.title}:**\n{entry_list}"
 
         await self.message.edit(content=content)
