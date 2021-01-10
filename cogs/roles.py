@@ -90,7 +90,7 @@ class Roles(Cog):
         self.channel_id = 797633928152088586
 
         self.categories = []
-        self.role_ids = []
+        self.role_ids = {}
 
     async def fetch_categories(self) -> list:
         data = await self.bot.db.fetchall("SELECT * FROM r_categories")
