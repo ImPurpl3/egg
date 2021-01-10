@@ -21,145 +21,148 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import re
 from textwrap import dedent
 
-from discord import Message
+from discord import Message, PartialEmoji, RawReactionActionEvent, Role
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from discord.utils import get
 from .utils import utils
 
 
-HELPTEXT = """
-    You can give yourself the following roles by using `{0}roles add <ID>` (without <>)
-    Removal is similar, the command is `remove` instead of `add`.
+class CategoryEntry:
+    pattern = re.compile(r"^(<:.+?:\d+>|.):\s*(.+)$")
 
-    Your roles: {1}
+    def __init__(self, emoji: str, description: str):
+        self.description = description
+        self.emoji = self.emoji
 
-    *Please don't give yourself roles just for the sake of having more roles.*
-    *Only take the roles whose channel you really want access to.*
-"""
+    @classmethod
+    def from_string(cls, line: str):
+        return cls(*cls.pattern.match(line).groups())
+
+
+class RoleCategory:
+    def __init__(self, message: Message, name: str):
+        self.message = message
+
+        self.name = name
+        self.roles = []
+        self.title = ""
+
+        self.parse_lines()
+
+    def parse_lines(self) -> list:
+        content: str = self.message.content
+        lines = [i for i in content.split("\n") if i]
+
+        self.title = lines[0]
+
+        for line in lines[1:]:
+            self.roles.append(CategoryEntry.from_string(line))
 
 
 class Roles(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
+        self.channel_id = 797633928152088586
+
+        self.categories = []
+        self.role_ids = []
+
+    async def get_category(self, id_or_name: str) -> RoleCategory:
+        if not self.categories:
+            data = await self.bot.db.fetchall("SELECT * FROM r_categories")
+            message_ids = {i["name"]: i["message_id"] for i in data}
+            names = {v: k for k, v in message_ids.items()}
+
+            history = self.bot.get_channel(self.channel_id).history(limit=None)
+            messages = [message async for message in history if message.id in message_ids.values()]
+
+            self.categories = [
+                RoleCategory(message, names[message.id])
+                for message in messages
+            ]
+
+        if id_or_name.isdigit():
+            for category in self.categories:
+                if category.message.id == int(id_or_name):
+                    return category
+        else:
+            for category in self.categories:
+                if category.name == id_or_name:
+                    return category
+
+    async def get_role_id(self, emoji: PartialEmoji) -> int:
+        if not self.role_ids:
+            roles = await self.bot.db.fetchall("SELECT * FROM roles")
+            self.role_ids = {i["emoji"]: i["role_id"] for i in roles}
+
+        return self.role_ids.get(str(emoji))
 
     @commands.group(invoke_without_command=True)
     async def roles(self, ctx: Context):
-        roles = await self.bot.db.fetchall("SELECT * FROM roles")
-
-        author_roles = [f"`{r['short_name']}`" for r in roles \
-            if ctx.guild.get_role(r["id"]) in ctx.author.roles]
-
-        author_roles = ", ".join(author_roles) or "None"
-        helptext = dedent(HELPTEXT).strip().format(ctx.prefix, author_roles)
-
-        embed = utils.BaseEmbed(ctx, description=helptext)
-        embed.set_author(name=f"Opt-in roles", icon_url=ctx.author.avatar_url)
-
-        for role in roles:
-            embed.add_field(
-                name=role["name"],
-                value=f"{role['description']}\n*ID: `{role['short_name']}`*")
-
-        await ctx.send(embed=embed)
+        await ctx.send(f"Moved to <#{self.channel_id}>.")
 
     @roles.command()
-    async def add(self, ctx: Context, role: str):
-        role = await self.bot.db.fetchone("SELECT * FROM roles WHERE short_name = ?", role)
-
-        if not role:
-            embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar_url)
-            return await ctx.send(embed=embed)
-
-        actual_role = ctx.guild.get_role(role["id"])
-
-        if actual_role in ctx.author.roles:
-            embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="You already have that role.", icon_url=ctx.author.avatar_url)
-            return await ctx.send(embed=embed)
-
-        mention = actual_role.mention
-
-        embed = utils.BaseEmbed(ctx, description=f"Added {mention} to {ctx.author.mention}.")
-        embed.set_author(name="Role added.", icon_url=ctx.author.avatar_url)
-
-        await ctx.author.add_roles(actual_role)
-        await ctx.send(embed=embed)
-
-    @roles.command()
-    async def remove(self, ctx: Context, role: str):
-        role = await self.bot.db.fetchone("SELECT * FROM roles WHERE short_name = ?", role)
-
-        if not role:
-            embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar_url)
-            return await ctx.send(embed=embed)
-
-        actual_role = ctx.guild.get_role(role["id"])
-
-        if actual_role not in ctx.author.roles:
-            embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="You do not have that role.", icon_url=ctx.author.avatar_url)
-            return await ctx.send(embed=embed)
-
-        mention = actual_role.mention
-
-        embed = utils.BaseEmbed(ctx, description=f"Removed {mention} from {ctx.author.mention}.")
-        embed.set_author(name="Role removed.", icon_url=ctx.author.avatar_url)
-
-        await ctx.author.remove_roles(actual_role)
-        await ctx.send(embed=embed)
-
-    @roles.command()
-    @commands.is_owner()
     @commands.has_permissions(administrator=True)
-    async def new(self, ctx: Context):
-        def is_answer(message: Message):
-            return message.author == ctx.author and message.channel == ctx.channel
-
-        async def get_input(is_role=False):
-            resp = await self.bot.wait_for("message", check=is_answer)
-            await resp.delete()
-
-            if is_role:
-                return await commands.RoleConverter().convert(ctx, resp.content)
-            return resp.content
-
-        output = ""
-        fields = ["Display name", "Short name", "Description", "Role"]
-        ans = []
-
-        for field in fields:
-            if not output:
-                output += f"{field}: "
-                msg = await ctx.send(output)
-
-                resp = await get_input()
-                output += f"`{resp}`\n"
-                ans.append(resp)
-
-                continue
-
-            output += f"{field}: "
-            await msg.edit(content=output)
-
-            if field == "Role":
-                role = await get_input(is_role=True)
-                output += f"`{role.name} ({role.id})`\n"
-                ans.append(role.id)
-            else:
-                resp = await get_input()
-                output += f"`{resp}`\n"
-                ans.append(resp)
+    async def newcategory(self, ctx: Context, name: str, *, title: str):
+        channel = self.bot.get_channel(self.channel_id)
+        message = await channel.send(f"**{title}:**")
 
         await self.bot.db.execute(
-            "INSERT INTO roles (name, short_name, description, id) VALUES (?, ?, ?, ?)",
-            *ans)
-        output += f"\nEntry created successfully."
+            "INSERT INTO r_categories (name, message_id) VALUES (?, ?)",
+            name, message.id
+        )
+        self.categories.append(RoleCategory(message, name))
 
-        await msg.edit(content=output)
+        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
+
+    @roles.command()
+    @commands.has_permissions(administrator=True)
+    async def new(self, ctx: Context, category: str, role: Role, emoji: str, *, text: str):
+        category = await self.get_category(category)
+        entry = CategoryEntry(emoji, text)
+
+    
+
+
+    async def handle_reaction(self, payload: RawReactionActionEvent):
+        channel_id = payload.channel_id
+        guild_id = payload.guild_id
+        user_id = payload.user_id
+
+        if channel_id != self.channel_id or user_id == self.bot.user.id:
+            return
+
+        emoji = payload.emoji
+
+        if not (role_id := await self.get_role_id(emoji)):
+            return
+
+        guild = self.bot.get_guild(guild_id)
+        member = guild.get_member(user_id)
+        role = guild.get_role(role_id)
+
+        if payload.event_type == "REACTION_ADD" and role not in member.roles:
+            await member.add_roles(role)
+            return True
+
+        if payload.event_type == "REACTION_REMOVE" and role in member.roles:
+            await member.remove_roles(role)
+            return False
+
+        return None
+
+
+    @Cog.listener()
+    async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
+        await self.handle_reaction(payload)
+
+    @Cog.listener()
+    async def on_raw_reaction_remove(self, payload: RawReactionActionEvent):
+        await self.handle_reaction(payload)
 
 
 def setup(bot: utils.Bot):
