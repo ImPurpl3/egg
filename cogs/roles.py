@@ -59,6 +59,8 @@ class RoleCategory:
         self.entries = []
         self.title = ""
 
+        self.parse_lines()
+
     def parse_lines(self):
         content: str = self.message.content
         lines = [i for i in content.split("\n") if i]
@@ -76,12 +78,12 @@ class RoleCategory:
         self.entries.append(entry)
 
     async def remove_entry(self, entry: CategoryEntry):
+        self.entries.remove(entry)
         entry_list = "\n".join(str(i) for i in self.entries)
         content = f"**{self.title}:**\n{entry_list}"
 
         await self.message.edit(content=content)
         await self.message.clear_reaction(entry.emoji)
-        self.entries.remove(entry)
 
 
 class Roles(Cog):
@@ -91,6 +93,8 @@ class Roles(Cog):
 
         self.categories = []
         self.role_ids = {}
+
+        self.bot.loop.create_task(self.set_role_ids())
 
     async def fetch_categories(self) -> list:
         data = await self.bot.db.fetchall("SELECT * FROM r_categories")
@@ -104,6 +108,10 @@ class Roles(Cog):
             RoleCategory(message, names[message.id])
             for message in messages
         ]
+
+    async def set_role_ids(self):
+        roles = await self.bot.db.fetchall("SELECT * FROM roles")
+        self.role_ids = {i["emoji"]: i["role_id"] for i in roles}
 
     async def get_category(self, id_or_name: str) -> RoleCategory:
         if not self.categories:
@@ -120,9 +128,7 @@ class Roles(Cog):
 
     async def get_role_id(self, emoji: PartialEmoji) -> int:
         if not self.role_ids:
-            roles = await self.bot.db.fetchall("SELECT * FROM roles")
-            self.role_ids = {i["emoji"]: i["role_id"] for i in roles}
-
+            await self.set_role_ids()
         return self.role_ids.get(str(emoji))
 
     @commands.group(invoke_without_command=True)
