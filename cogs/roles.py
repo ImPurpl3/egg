@@ -27,7 +27,7 @@ from textwrap import dedent
 from discord import Message, PartialEmoji, RawReactionActionEvent, Role
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord.utils import get
+from discord.utils import find, get
 from .utils import utils
 
 
@@ -37,6 +37,11 @@ class CategoryEntry:
     def __init__(self, emoji: str, description: str):
         self.description = description
         self.emoji = emoji
+
+    def __eq__(self, other):
+        if isinstance(other, CategoryEntry):
+            return other.description == self.description and other.emoji == self.emoji
+        return False
 
     def __str__(self) -> str:
         return f"{self.emoji}: {self.description}"
@@ -51,25 +56,32 @@ class RoleCategory:
         self.message = message
 
         self.name = name
-        self.roles = []
+        self.entries = []
         self.title = ""
 
-        self.parse_lines()
-
-    def parse_lines(self) -> list:
+    def parse_lines(self):
         content: str = self.message.content
         lines = [i for i in content.split("\n") if i]
 
         self.title = lines.pop(0)
 
         for line in lines:
-            self.roles.append(CategoryEntry.from_string(line))
+            self.entries.append(CategoryEntry.from_string(line))
 
     async def add_entry(self, entry: CategoryEntry):
         content = f"{self.message.content}\n{entry}"
         
         await self.message.edit(content=content)
         await self.message.add_reaction(entry.emoji) 
+        self.entries.append(entry)
+
+    async def remove_entry(self, entry: CategoryEntry):
+        entry_list = "\n".join(str(i for i in self.entries))
+        content = f"**{self.title}:**\n{entry_list}"
+
+        await self.message.edit(content=content)
+        await self.message.clear_reaction(entry.emoji)
+        self.entries.remove(entry)
 
 
 class Roles(Cog):
@@ -80,19 +92,22 @@ class Roles(Cog):
         self.categories = []
         self.role_ids = []
 
+    async def fetch_categories(self) -> list:
+        data = await self.bot.db.fetchall("SELECT * FROM r_categories")
+        message_ids = {i["name"]: i["message_id"] for i in data}
+        names = {v: k for k, v in message_ids.items()}
+
+        history = self.bot.get_channel(self.channel_id).history(limit=None)
+        messages = [message async for message in history if message.id in message_ids.values()]
+
+        return [
+            RoleCategory(message, names[message.id])
+            for message in messages
+        ]
+
     async def get_category(self, id_or_name: str) -> RoleCategory:
         if not self.categories:
-            data = await self.bot.db.fetchall("SELECT * FROM r_categories")
-            message_ids = {i["name"]: i["message_id"] for i in data}
-            names = {v: k for k, v in message_ids.items()}
-
-            history = self.bot.get_channel(self.channel_id).history(limit=None)
-            messages = [message async for message in history if message.id in message_ids.values()]
-
-            self.categories = [
-                RoleCategory(message, names[message.id])
-                for message in messages
-            ]
+            self.categories = await self.fetch_categories()
 
         if id_or_name.isdigit():
             for category in self.categories:
@@ -133,8 +148,32 @@ class Roles(Cog):
     async def new(self, ctx: Context, category: str, role: Role, emoji: str, *, text: str):
         category = await self.get_category(category)
         entry = CategoryEntry(emoji, text)
+
+        await self.bot.db.execute(
+            "INSERT INTO roles (emoji, role_id) VALUES (?, ?)",
+            emoji, role.id)
         await category.add_entry(entry)
 
+        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
+
+    @roles.command()
+    @commands.has_permissions(administrator=True)
+    async def delete(self, ctx: Context, category: str, *, role_identifier: str):
+        try:
+            role = (await commands.RoleConverter().convert(ctx, role_identifier)).id
+        except commands.RoleNotFound:
+            role = await self.get_role_id(role_identifier)
+
+        if isinstance(role, int):
+            emojis = {v: k for k, v in self.role_ids.items()}
+            emoji = emojis[role]
+        else:
+            emoji = role
+
+        category = await self.get_category(category)
+        await category.remove_entry(get(category.entries, emoji=emoji))
+
+        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
 
     async def handle_reaction(self, payload: RawReactionActionEvent):
         channel_id = payload.channel_id
