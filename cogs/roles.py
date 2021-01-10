@@ -64,8 +64,7 @@ class RoleCategory:
     def parse_lines(self):
         content: str = self.message.content
         lines = [i for i in content.split("\n") if i]
-
-        self.title = lines.pop(0).strip("*_")
+        self.title = lines.pop(0).strip("*_:")
 
         for line in lines:
             self.entries.append(CategoryEntry.from_string(line))
