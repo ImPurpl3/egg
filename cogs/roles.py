@@ -32,7 +32,7 @@ from .utils import utils
 
 
 class CategoryEntry:
-    pattern = re.compile(r"^(<:.+?:\d+>|.):\s*(.+)$")
+    pattern = re.compile(r"^(<:.+?:\d+>|.*):\s*(.+)$")
 
     def __init__(self, emoji: str, description: str):
         self.description = description
