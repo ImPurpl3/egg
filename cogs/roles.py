@@ -67,7 +67,9 @@ class RoleCategory:
 
     async def add_entry(self, entry: CategoryEntry):
         content = f"{self.message.content}\n{entry}"
+        
         await self.message.edit(content=content)
+        await self.message.add_reaction(entry.emoji) 
 
 
 class Roles(Cog):
