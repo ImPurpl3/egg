@@ -70,10 +70,10 @@ class RoleCategory:
             self.entries.append(CategoryEntry.from_string(line))
 
     async def add_entry(self, entry: CategoryEntry):
+        await self.message.add_reaction(entry.emoji)
         content = f"{self.message.content}\n{entry}"
         
         await self.message.edit(content=content)
-        await self.message.add_reaction(entry.emoji) 
         self.entries.append(entry)
 
     async def remove_entry(self, entry: CategoryEntry):
@@ -178,6 +178,7 @@ class Roles(Cog):
             emoji = role
 
         category = await self.get_category(category)
+        await self.bot.db.execute("DELETE FROM roles WHERE emoji = ?", emoji)
         await category.remove_entry(get(category.entries, emoji=emoji))
 
         await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
