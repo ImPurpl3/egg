@@ -671,10 +671,10 @@ class Misc(Cog):
         embed.set_author(name="Bot information", icon_url=ctx.me.avatar_url)
 
         py_version = ".".join(str(i) for i in sys.version_info[:3])
-        embed.add_field(name="Python version", value=py_version)
+        embed.add_field(name="Python version", value=py_version, inline=False)
 
-        embed.add_field(name="discord.py version", value=discord.__version__)
-        embed.add_field(name="Source", value=f"[Click here]({REPO} \"bad code alert\")")
+        embed.add_field(name="discord.py version", value=discord.__version__, inline=False)
+        embed.add_field(name="Source", value=f"[Click here]({REPO} \"bad code alert\")", inline=False)
 
         vp = self.bot.get_user(self.bot.owner_id)
         embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar_url)
