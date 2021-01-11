@@ -667,7 +667,7 @@ class Misc(Cog):
 
     @commands.command()
     async def info(self, ctx: Context):
-        embed = utils.BaseEmbed(ctx, color=EGG_COLOR)
+        embed = utils.BaseEmbed(ctx)
         embed.set_author(name="Bot information", icon_url=ctx.me.avatar_url)
 
         py_version = ".".join(str(i) for i in sys.version_info[:3])
