@@ -27,6 +27,7 @@ import imghdr
 import json
 import random
 import re
+import sys
 import textwrap
 import time
 from datetime import datetime, timedelta
@@ -49,6 +50,8 @@ RGB_REGEX = re.compile(r"^(?:rgb\()?((?:[0-9]{1,3}(?:,\s*|\s+)){2}[0-9]{1,3})\)?
 CMYK_REGEX = re.compile(
     r"^(?:cmyk\()?((?:[0-9]{1,3}%?(?:,\s*|\s+)){3}[0-9]{1,3}%?)\)?$", re.IGNORECASE
 )
+
+REPO = "https://github.com/ValkyriaKing711/egg/"
 
 
 class Misc(Cog):
@@ -659,6 +662,22 @@ class Misc(Cog):
             embed.add_field(name="State", value="Off")
             await ctx.author.add_roles(no_color)
             await ctx.author.remove_roles(color)
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def info(self, ctx: Context):
+        embed = utils.BaseEmbed(ctx, color=EGG_COLOR)
+        embed.set_author(name="Bot information", icon_url=ctx.me.avatar_url)
+
+        py_version = ".".join(str(i) for i in sys.version_info[:3])
+        embed.add_field(name="Python version", value=py_version)
+
+        embed.add_field(name="discord.py version", value=discord.__version__)
+        embed.add_field(name="Source", value=f"[Click here]({REPO} bad code alert)")
+
+        vp = self.bot.get_user(self.bot.owner_id)
+        embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar_url)
 
         await ctx.send(embed=embed)
 
