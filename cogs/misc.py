@@ -674,7 +674,7 @@ class Misc(Cog):
         embed.add_field(name="Python version", value=py_version)
 
         embed.add_field(name="discord.py version", value=discord.__version__)
-        embed.add_field(name="Source", value=f"[Click here]({REPO} bad code alert)")
+        embed.add_field(name="Source", value=f"[Click here]({REPO} \"bad code alert\")")
 
         vp = self.bot.get_user(self.bot.owner_id)
         embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar_url)
