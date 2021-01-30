@@ -42,7 +42,7 @@ class Events(Cog):
     """A cog containing the bot's event listeners."""
     def __init__(self, bot: utils.Bot):
         self.bot = bot
-        self.previous_e_author = None
+        self.previous_q_author = None
 
     async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
         """Sends an embed with error info to the channel the erroring command was invoked in."""
@@ -105,15 +105,15 @@ class Events(Cog):
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         """Fired each time a message is sent."""
-        # channel = message.channel
+        channel = message.channel
 
-        # if channel.id == 662063429879595009:
-        #     contents = [message.activity, message.application, message.attachments,
-        #                 message.embeds, message.content != "E"]
-        #     if message.author.id == self.previous_e_author or any(i for i in contents):
-        #         return await message.delete()
+        if channel.id == 662063429879595009:
+            contents = [message.activity, message.application, message.attachments,
+                        message.embeds, message.content != "Q"]
+            if message.author.id == self.previous_q_author or any(i for i in contents):
+                return await message.delete()
 
-        #     self.previous_e_author = message.author.id
+            self.previous_q_author = message.author.id
 
         if message.content.lower() == "gg":
             await message.add_reaction("\N{NEGATIVE SQUARED LATIN CAPITAL LETTER B}\ufe0f")
