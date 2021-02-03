@@ -22,12 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import re
-from textwrap import dedent
 
 from discord import Message, PartialEmoji, RawReactionActionEvent, Role
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord.utils import find, get
+from discord.utils import get
+
 from .utils import utils
 
 
