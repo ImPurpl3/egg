@@ -203,9 +203,9 @@ class Events(Cog):
             if not message.guild or message.guild.id != 527932145273143306:
                 return
 
-            # if message.channel.id == 662063429879595009:
-            #     if payload.data["content"] != "E":
-            #         await message.delete()
+            if message.channel.id == 662063429879595009:
+                if payload.data["content"] != "E":
+                    await message.delete()
 
             if not payload.data.get("content") or message.content == payload.data["content"]:
                 return
@@ -224,12 +224,12 @@ class Events(Cog):
         embed.description = f"[Jump to message]({jump_url})"
         await self.bot.get_channel(662438467204153354).send(embed=embed)
 
-    # @Cog.listener()
-    # async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-    #     if payload.channel_id == 662063429879595009:
-    #         channel = self.bot.get_channel(payload.channel_id)
-    #         message = await channel.fetch_message(payload.message_id)
-    #         await message.remove_reaction(payload.emoji, payload.member)
+    @Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if payload.channel_id == 662063429879595009:
+            channel = self.bot.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction(payload.emoji, payload.member)
 
 
 def setup(bot: utils.Bot):
