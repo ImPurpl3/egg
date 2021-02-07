@@ -111,8 +111,10 @@ class Telephone(Cog):
         image = BytesIO(await resp.attachments[0].read())
         self.file = (
             image,
-            f"pixelated_{resp.id}.{what('', h=image).replace('jpeg', 'jpg')}"
+            f"pixelated_{resp.id}.{what('', h=image.read()).replace('jpeg', 'jpg')}"
         )
+
+        self.file[0].seek(0)
 
         await self.channel.delete_messages([msg, resp])
 
@@ -171,8 +173,10 @@ class Telephone(Cog):
             image = BytesIO(await resp.attachments[0].read())
             self.file = (
                 image,
-                f"pixelated_{resp.id}.{what('', h=image).replace('jpeg', 'jpg')}"
+                f"pixelated_{resp.id}.{what('', h=image.read()).replace('jpeg', 'jpg')}"
             )
+
+            self.file[0].seek(0)
 
             await message.channel.delete_messages([msg, resp])
 
