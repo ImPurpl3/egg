@@ -24,6 +24,7 @@ SOFTWARE.
 import json
 from asyncio import TimeoutError
 from io import BytesIO
+from imghdr import what
 from random import SystemRandom
 
 from discord import Emoji, File, Member, Message, Reaction
@@ -98,21 +99,22 @@ class Telephone(Cog):
             "<@295579220657176577> send pixelated drawing "
             "and add cumrat reaction to confirm"
         )
-        response = await self.bot.wait_for("message", check=pine_send_check)
+        resp = await self.bot.wait_for("message", check=pine_send_check)
 
         def pine_confirm_check(r: Reaction, u: Member) -> bool:
             return isinstance(r.emoji, Emoji) and \
-                   r.message.id == response.id and \
+                   r.message.id == resp.id and \
                    r.emoji.name == "cumrat" and u.id == 295579220657176577
 
         await self.bot.wait_for("reaction_add", check=pine_confirm_check)
 
+        image = BytesIO(await resp.attachments[0].read())
         self.file = (
-            BytesIO(await response.attachments[0].read()),
-            f"pixelated_{response.id}"
+            image,
+            f"pixelated_{resp.id}.{what('', h=image).replace('jpeg', 'jpg')}"
         )
 
-        await self.channel.delete_messages([msg, response])
+        await self.channel.delete_messages([msg, resp])
 
         self.current = random.choice(self.members)
         self.members.remove(self.current)
@@ -155,23 +157,24 @@ class Telephone(Cog):
                 "<@295579220657176577> send pixelated drawing "
                 "and add cumrat reaction to confirm"
             )
-            response = await self.bot.wait_for(
+            resp = await self.bot.wait_for(
                 "message", check=pine_send_check
             )
 
             def pine_confirm_check(r: Reaction, u: Member) -> bool:
                 return isinstance(r.emoji, Emoji) and \
-                       r.message.id == response.id and \
+                       r.message.id == resp.id and \
                        r.emoji.name == "cumrat" and u.id == 295579220657176577
 
             await self.bot.wait_for("reaction_add", check=pine_confirm_check)
 
+            image = BytesIO(await resp.attachments[0].read())
             self.file = (
-                BytesIO(await response.attachments[0].read()),
-                f"pixelated_{response.id}"
+                image,
+                f"pixelated_{resp.id}.{what('', h=image).replace('jpeg', 'jpg')}"
             )
 
-            await message.channel.delete_messages([msg, response])
+            await message.channel.delete_messages([msg, resp])
 
             self.current = random.choice(self.members)
             self.members.remove(self.current)
