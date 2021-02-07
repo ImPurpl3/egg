@@ -94,7 +94,7 @@ class Telephone(Cog):
             return m.author.id == 295579220657176577 and \
                    m.channel == self.channel and m.attachments
 
-        msg = await ctx.send(
+        msg = await self.channel.send(
             "<@295579220657176577> send pixelated drawing "
             "and add cumrat reaction to confirm"
         )
@@ -112,7 +112,7 @@ class Telephone(Cog):
             f"pixelated_{response.id}"
         )
 
-        await ctx.channel.delete_messages([msg, response])
+        await self.channel.delete_messages([msg, response])
 
         self.current = random.choice(self.members)
         self.members.remove(self.current)
