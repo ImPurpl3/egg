@@ -144,6 +144,9 @@ class Telephone(Cog):
             if self.wait_message:
                 await self.wait_message.delete()
 
+            if not self.members:
+                await message.channel.send("all done")
+
             def pine_send_check(m: Message) -> bool:
                 return m.author.id == 295579220657176577 and \
                        m.channel == self.channel and m.attachments
@@ -179,3 +182,6 @@ class Telephone(Cog):
                 file=File(*self.file)
             )
 
+
+def setup(bot: utils.Bot):
+    bot.add_cog(Telephone(bot))
