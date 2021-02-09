@@ -140,6 +140,8 @@ class Telephone(Cog):
             if not message.attachments:
                 return await message.delete()
 
+            await message.add_reaction(":cumrat:705164503163207692")
+
             def confirm_check(r: Reaction, u: Member) -> bool:
                 return r.emoji.name == "cumrat" and \
                        r.message.id == message.id and u == self.current
