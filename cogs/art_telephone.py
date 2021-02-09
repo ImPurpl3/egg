@@ -36,15 +36,17 @@ from .utils import utils
 random = SystemRandom()
 
 MESSAGE_TEMPLATE = "hi {}, take a good look at this image and " \
-                   "draw what you think is in it. once you're done, " \
-                   "send the image here, make sure it's fine and add " \
-                   "<:cumrat:705164503163207692> as a reaction to your " \
-                   "message to confirm your submission."
+                   "replicate it as best as you can. once you're done, " \
+                   "send the image to <#806935123102531584>, make sure " \
+                   "it's fine and add <:cumrat:705164503163207692> as a " \
+                   "reaction to your message to confirm your submission.\n" \
+                   "if you have any questions, you can use this channel."
 
 
 class Telephone(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
+        self.start_channel = self.bot.get_channel(808524170254090240)
         self.channel = self.bot.get_channel(806935123102531584)
 
         self.role = self.channel.guild.get_role(807753537340964925)
@@ -93,9 +95,9 @@ class Telephone(Cog):
 
         def pine_send_check(m: Message) -> bool:
             return m.author.id == 295579220657176577 and \
-                   m.channel == self.channel and m.attachments
+                   m.channel == self.start_channel and m.attachments
 
-        msg = await self.channel.send(
+        msg = await self.start_channel.send(
             "<@295579220657176577> send pixelated drawing "
             "and add cumrat reaction to confirm"
         )
@@ -116,13 +118,13 @@ class Telephone(Cog):
 
         self.file[0].seek(0)
 
-        await self.channel.delete_messages([msg, resp])
+        await self.start_channel.delete_messages([msg, resp])
 
         self.current = random.choice(self.members)
         self.members.remove(self.current)
         await self.current.add_roles(self.role)
 
-        self.wait_message = await self.channel.send(
+        self.wait_message = await self.start_channel.send(
             MESSAGE_TEMPLATE.format(self.current.mention),
             file=File(*self.file)
         )
@@ -131,15 +133,23 @@ class Telephone(Cog):
     async def on_message(self, message: Message):
         if message.channel == self.channel and message.author == self.current:
             if not message.attachments:
-                return
+                return await message.delete()
 
             def confirm_check(r: Reaction, u: Member) -> bool:
                 return r.emoji.name == "cumrat" and \
                        r.message.id == message.id and u == self.current
                 
-            reaction, _ = await self.bot.wait_for(
-                "reaction_add", check=confirm_check
-            )
+            try:
+                reaction, _ = await self.bot.wait_for(
+                    "reaction_add", check=confirm_check, timeout=60
+                )
+            except TimeoutError:
+                await self.start_channel.send(
+                    f"{self.current.mention} send the image again, "
+                    "confirmation timed out."
+                )
+                return await message.delete()
+
             await reaction.clear()
                 
             await self.current.remove_roles(self.role)
@@ -153,9 +163,9 @@ class Telephone(Cog):
 
             def pine_send_check(m: Message) -> bool:
                 return m.author.id == 295579220657176577 and \
-                       m.channel == self.channel and m.attachments
+                       m.channel == self.start_channel and m.attachments
 
-            msg = await message.channel.send(
+            msg = await self.start_channel.send(
                 "<@295579220657176577> send pixelated drawing "
                 "and add cumrat reaction to confirm"
             )
@@ -178,13 +188,13 @@ class Telephone(Cog):
 
             self.file[0].seek(0)
 
-            await message.channel.delete_messages([msg, resp])
+            await self.start_channel.delete_messages([msg, resp])
 
             self.current = random.choice(self.members)
             self.members.remove(self.current)
             await self.current.add_roles(self.role)
 
-            self.wait_message = await self.channel.send(
+            self.wait_message = await self.start_channel.send(
                 MESSAGE_TEMPLATE.format(self.current.mention),
                 file=File(*self.file)
             )
