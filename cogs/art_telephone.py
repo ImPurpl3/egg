@@ -42,7 +42,7 @@ MESSAGE_TEMPLATE = "hi {}, take a good look at this image and " \
                    "replicate it as best as you can. once you're done, " \
                    "send the image to <#806935123102531584>, make sure " \
                    "it's fine and add <:cumrat:705164503163207692> as a " \
-                   "reaction to your message to confirm your submission.\n" \
+                   "reaction to the confirmation message to confirm.\n" \
                    "if you have any questions, you can use this channel."
 
 
@@ -140,11 +140,13 @@ class Telephone(Cog):
             if not message.attachments:
                 return await message.delete()
 
-            await message.add_reaction(":cumrat:705164503163207692")
+            msg = await self.start_channel.send(
+                "react here with <:cumrat:705164503163207692> to confirm"
+            )
 
             def confirm_check(r: Reaction, u: Member) -> bool:
                 return r.emoji.name == "cumrat" and \
-                       r.message.id == message.id and u == self.current
+                       r.message.id == msg.id and u == self.current
                 
             try:
                 reaction, _ = await self.bot.wait_for(
