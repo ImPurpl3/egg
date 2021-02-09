@@ -93,6 +93,8 @@ class Telephone(Cog):
         if self.wait_message:
             await self.wait_message.delete()
 
+        await self.start_channel.purge(limit=100)
+
         def pine_send_check(m: Message) -> bool:
             return m.author.id == 295579220657176577 and \
                    m.channel == self.start_channel and m.attachments
@@ -151,12 +153,14 @@ class Telephone(Cog):
                 return await message.delete()
 
             await reaction.clear()
-                
+
             await self.current.remove_roles(self.role)
             self.current = None
 
             if self.wait_message:
                 await self.wait_message.delete()
+
+            await self.start_channel.purge(limit=100)
 
             if not self.members:
                 await message.channel.send("all done")
