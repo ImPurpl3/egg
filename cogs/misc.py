@@ -681,6 +681,24 @@ class Misc(Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["inspiro"])
+    async def inspirobot(self, ctx: Context):
+        """Sends an Inspirobot quote."""
+        async with self.bot.session.get(
+            "http://inspirobot.me/api?generate=true"
+        ) as resp:
+            url = await resp.text()
+        
+        embed = utils.BaseEmbed(ctx)
+        embed.set_author(
+            name="inspirobot.me",
+            url="http://inspirobot.me/",
+            icon_url="https://i.imgur.com/UgKWIaF.png"
+        )
+        embed.set_image(url=url)
+
+        await ctx.send(embed=embed)
+
 
 def setup(bot: utils.Bot):
     """Entry point for bot.load_extension."""
