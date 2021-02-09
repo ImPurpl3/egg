@@ -99,12 +99,14 @@ class Music(Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.command()
+    @commands.command(aliases=["stream"])
     @commands.max_concurrency(1, per=BucketType.guild, wait=True)
     async def play(self, ctx: Context, *, query: str):
         vc: VoiceClient = ctx.voice_client
         player: MusicPlayer = self.get_player(ctx)
         player.skipped = None
+
+        do_stream = STREAM_MODE or ctx.invoked_with == "stream"
 
         async with ctx.typing():
             query = query.strip("<>")
@@ -117,7 +119,7 @@ class Music(Cog):
                 verb = "Playing"
 
                 source = await YTDLSource.from_query(
-                    query, loop=self.bot.loop, ctx=ctx, stream=STREAM_MODE
+                    query, loop=self.bot.loop, ctx=ctx, stream=do_stream
                 )
                 
                 player.current = source
@@ -129,7 +131,7 @@ class Music(Cog):
             else:
                 verb = "Queued"
 
-                if STREAM_MODE is True:
+                if do_stream:
                     source = await YTDLSource.from_query(
                         query, loop=self.bot.loop, partial=True,
                         ctx=ctx, stream=True
