@@ -67,17 +67,21 @@ class Music(Cog):
 
         return player
 
-    async def cog_check(self, ctx: Context) -> bool:
-        if ctx.author.voice:
-            return ctx.author.voice.channel.category_id == 788047812729503825
-        return ctx.channel.category_id == 788047812729503825
+    # async def cog_check(self, ctx: Context) -> bool:
+    #     if ctx.author.voice:
+    #         return ctx.author.voice.channel.category_id == 788047812729503825
+    #     return ctx.channel.category_id == 788047812729503825
 
     @commands.command(aliases=["join"])
     async def connect(self, ctx: Context):
         embed = BaseEmbed(ctx)
         embed.set_author(
             name=f"Connected to {ctx.author.voice.channel.name}.",
-            icon_url=ctx.author.avatar_url)
+            icon_url=ctx.author.avatar_url
+        )
+        embed.set_footer(
+            text="The music cog is experimental and may not work as intended."
+        )
 
         await ctx.author.voice.channel.connect()
         await ctx.send(embed=embed)
@@ -88,7 +92,8 @@ class Music(Cog):
         embed = BaseEmbed(ctx)
         embed.set_author(
             name="Player paused.",
-            icon_url=ctx.author.avatar_url)
+            icon_url=ctx.author.avatar_url
+        )
 
         ctx.voice_client.pause()
         await ctx.send(embed=embed)
@@ -112,7 +117,8 @@ class Music(Cog):
                 verb = "Playing"
 
                 source = await YTDLSource.from_query(
-                    query, loop=self.bot.loop, ctx=ctx, stream=STREAM_MODE)
+                    query, loop=self.bot.loop, ctx=ctx, stream=STREAM_MODE
+                )
                 
                 player.current = source
                 player.first_play_id = ctx.message.id
@@ -126,11 +132,13 @@ class Music(Cog):
                 if STREAM_MODE is True:
                     source = await YTDLSource.from_query(
                         query, loop=self.bot.loop, partial=True,
-                        ctx=ctx, stream=True)
+                        ctx=ctx, stream=True
+                    )
                     data = source
                 else:
                     source = await YTDLSource.from_query(
-                        query, loop=self.bot.loop, ctx=ctx, stream=False)
+                        query, loop=self.bot.loop, ctx=ctx, stream=False
+                    )
                     data = source.data
                 
                 await player.queue.put(source)
@@ -139,7 +147,8 @@ class Music(Cog):
             embed.set_author(
                 name=f"{verb} {data['title']}",
                 icon_url=ctx.author.avatar_url,
-                url=data["webpage_url"])
+                url=data["webpage_url"]
+            )
 
             if data["is_live"]:
                 duration = "🔴 LIVE"
@@ -152,7 +161,8 @@ class Music(Cog):
 
             if verb == "Queued":
                 embed.add_field(
-                    name="Position in queue", value=player.queue.qsize())
+                    name="Position in queue", value=player.queue.qsize()
+                )
 
             embed.set_thumbnail(url=data["thumbnail"])
 
@@ -164,7 +174,8 @@ class Music(Cog):
         embed = BaseEmbed(ctx)
         embed.set_author(
             name="Player resumed.",
-            icon_url=ctx.author.avatar_url)
+            icon_url=ctx.author.avatar_url
+        )
 
         ctx.voice_client.resume()
         await ctx.send(embed=embed)
@@ -182,7 +193,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx, description="End of queue.")
             embed.set_author(
                 name=f"Skipped {player.current.data['title']}",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
 
             await ctx.send(embed=embed)
 
@@ -194,7 +206,8 @@ class Music(Cog):
         embed = BaseEmbed(ctx)
         embed.set_author(
             name=f"Disconnected from {ctx.me.voice.channel.name}.",
-            icon_url=ctx.author.avatar_url)
+            icon_url=ctx.author.avatar_url
+        )
 
         await self.cleanup(ctx.guild)
         await ctx.send(embed=embed)
@@ -228,7 +241,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx, description=f"```css\n{desc}\n```")
             embed.set_author(
                 name="An error occurred during data extraction.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
 
             await ctx.send(embed=embed)
 
@@ -239,7 +253,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name="Already connected to a voice channel.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
             await ctx.send(embed=embed)
             raise PlayerException("already connected to a channel")
 
@@ -255,7 +270,8 @@ class Music(Cog):
                 embed = BaseEmbed(ctx)
                 embed.set_author(
                     name="You're not connected to a voice channel.",
-                    icon_url=ctx.author.avatar_url)
+                    icon_url=ctx.author.avatar_url
+                )
                 await ctx.send(embed=embed)
                 raise PlayerException("author not connected to voice")
 
@@ -272,7 +288,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name="Not connected to a voice channel.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
             await ctx.send(embed=embed)
 
             raise PlayerException("not connected to voice")
@@ -281,7 +298,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name="Nothing is playing.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
             await ctx.send(embed=embed)
 
             raise PlayerException("no AudioSource is playing")
@@ -290,7 +308,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name="Player is already paused.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
             await ctx.send(embed=embed)
 
             raise PlayerException("player is already paused")
@@ -299,7 +318,8 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name="Player is not paused.",
-                icon_url=ctx.author.avatar_url)
+                icon_url=ctx.author.avatar_url
+            )
             await ctx.send(embed=embed)
 
             raise PlayerException("player is not paused")

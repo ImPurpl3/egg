@@ -86,7 +86,8 @@ class YTDLSource(PCMVolumeTransformer):
         loop = loop or asyncio.get_running_loop()
         data = await loop.run_in_executor(
             None,
-            lambda: ytdl.extract_info(query, download=not stream))
+            lambda: ytdl.extract_info(query, download=not stream)
+        )
 
         if "entries" in data:
             data = data["entries"][0]
@@ -120,7 +121,8 @@ class YTDLSource(PCMVolumeTransformer):
         ctx = data.get("context")
         data = await loop.run_in_executor(
             None,
-            lambda: ytdl.extract_info(data["webpage_url"], download=False))
+            lambda: ytdl.extract_info(data["webpage_url"], download=False)
+        )
 
         if ctx:
             data["context"] = ctx
@@ -160,15 +162,18 @@ class MusicPlayer:
         if not isinstance(source, YTDLSource):
             try:
                 source = await YTDLSource.regather_stream(
-                    source, loop=self.bot.loop)
+                    source, loop=self.bot.loop
+                )
             except Exception as e:
                 embed = discord.Embed(
                     description=f"```css\n{e}\n```",
                     color=0xF6DECF,
-                    timestamp=utcnow())
+                    timestamp=utcnow()
+                )
                 embed.set_author(
-                    name="An error occurred while processing your song.",
-                    icon_url=self._guild.me.avatar_url)
+                    name="An error occurred while processing the track.",
+                    icon_url=self._guild.me.avatar_url
+                )
 
                 return await self._channel.send(embed=embed)
 
@@ -179,17 +184,20 @@ class MusicPlayer:
 
         self._guild.voice_client.play(
             source,
-            after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
+            after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set)
+        )
 
         if self.skipped is not None:
             embed = discord.Embed(
                 description=f"**Now playing {self.current.data['title']}**",
                 color=0xF6DECF,
-                timestamp=utcnow())
+                timestamp=utcnow()
+            )
             embed.set_author(
                 name=f"Skipped {self.skipped.data['title']}",
                 icon_url=self.skipped.data["skipper"].avatar_url,
-                url=source.data["webpage_url"])
+                url=source.data["webpage_url"]
+            )
 
             self.skipped = None
 
@@ -208,11 +216,13 @@ class MusicPlayer:
 
         elif ctx.message.id != self.first_play_id:
             embed = discord.Embed(
-                color=0xF6DECF, timestamp=utcnow())
+                color=0xF6DECF, timestamp=utcnow()
+            )
             embed.set_author(
                 name=f"Now playing {source.title}",
                 icon_url=ctx.author.avatar_url,
-                url=source.data["webpage_url"])
+                url=source.data["webpage_url"]
+            )
 
             if source.data["is_live"]:
                 duration = "🔴 LIVE"
