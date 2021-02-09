@@ -167,6 +167,7 @@ class Music(Cog):
                 )
 
             embed.set_thumbnail(url=data["thumbnail"])
+            embed.set_footer(text=f"{do_stream = }")
 
             await ctx.send(embed=embed)
 

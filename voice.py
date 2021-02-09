@@ -29,7 +29,7 @@ from typing import TypeVar, Union
 
 import discord
 from async_timeout import timeout
-from cogs.utils.utils import format_time
+from cogs.utils import utils
 from discord import (AudioSource, FFmpegPCMAudio, Guild, PCMVolumeTransformer,
                      TextChannel)
 from discord.ext import commands, tasks
@@ -132,7 +132,7 @@ class YTDLSource(PCMVolumeTransformer):
 
 class MusicPlayer:
     def __init__(self, ctx: Context):
-        self.bot: commands.Bot = ctx.bot
+        self.bot: utils.Bot = ctx.bot
         self._channel: TextChannel = ctx.channel
         self._cog: Cog = ctx.cog
         self._guild: Guild = ctx.guild
@@ -157,7 +157,7 @@ class MusicPlayer:
                 source = await self.queue.get()
         except asyncio.TimeoutError:
             print("timeout")
-            return self.destroy(self._guild)
+            return await self.destroy(self._guild)
 
         if not isinstance(source, YTDLSource):
             try:
@@ -187,7 +187,7 @@ class MusicPlayer:
             after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set)
         )
 
-        if self.skipped is not None:
+        if self.skipped:
             embed = discord.Embed(
                 description=f"**Now playing {self.current.data['title']}**",
                 color=0xF6DECF,
@@ -204,7 +204,7 @@ class MusicPlayer:
             if source.data["is_live"]:
                 duration = "🔴 LIVE"
             else:
-                duration = format_time(source.data["duration"])
+                duration = utils.format_time(source.data["duration"])
 
             embed.add_field(name="Uploader", value=source.data["uploader"])
             embed.add_field(name="Duration", value=duration)
@@ -227,7 +227,7 @@ class MusicPlayer:
             if source.data["is_live"]:
                 duration = "🔴 LIVE"
             else:
-                duration = format_time(source.data["duration"])
+                duration = utils.format_time(source.data["duration"])
 
             embed.add_field(name="Uploader", value=source.data["uploader"])
             embed.add_field(name="Duration", value=duration)
@@ -250,4 +250,4 @@ class MusicPlayer:
         await self.bot.wait_until_ready()
 
     def destroy(self, guild: Guild):
-        return self.bot.loop.create_task(self._cog.cleanup(guild))
+        return self._cog.cleanup(guild)
