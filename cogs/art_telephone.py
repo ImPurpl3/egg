@@ -1,4 +1,7 @@
 """
+this module is incredibly rushed and is not representative of my usual
+code quality, proceed with caution.
+
 MIT License
 
 Copyright (c) 2020 ValkyriaKing711
