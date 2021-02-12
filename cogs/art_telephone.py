@@ -134,6 +134,12 @@ class Telephone(Cog):
             file=File(*self.file)
         )
 
+    @telephone.command()
+    @commands.has_permissions(administrator=True)
+    async def remove(self, ctx: Context, *, member: utils.GuaranteedUser):
+        self.members.remove(member)
+        await ctx.message.add_reaction(":cumrat:705164503163207692")
+
     @Cog.listener()
     async def on_message(self, message: Message):
         if message.channel == self.channel and message.author == self.current:
