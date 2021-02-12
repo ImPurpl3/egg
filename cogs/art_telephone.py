@@ -145,7 +145,8 @@ class Telephone(Cog):
             )
 
             def confirm_check(r: Reaction, u: Member) -> bool:
-                return r.emoji.name == "cumrat" and \
+                return isinstance(r.emoji, Emoji) and \
+                       r.emoji.name == "cumrat" and \
                        r.message.id == msg.id and u == self.current
                 
             try:
