@@ -172,6 +172,7 @@ class Telephone(Cog):
             self.current = None
 
             if self.wait_message:
+                self.wait_message = None
                 await self.wait_message.delete()
 
             await self.start_channel.purge(limit=100)
