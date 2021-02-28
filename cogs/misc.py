@@ -39,6 +39,7 @@ import discord
 import parsedatetime as pdt
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from discord.utils import escape_markdown
 from PIL import Image, ImageDraw, ImageFont
 
 from .utils import utils
