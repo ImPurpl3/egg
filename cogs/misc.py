@@ -765,7 +765,7 @@ class Misc(Cog):
         await sleep_until(until)
 
         await ctx.send(
-            f"Unmuted {ctx.author.mention}.\nMute reason: {reason}"
+            f"Unmuted {ctx.author.mention}.\nSelfmute reason: {reason}"
         )
         await ctx.author.remove_roles(muted_role)
 
