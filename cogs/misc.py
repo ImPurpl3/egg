@@ -43,6 +43,7 @@ from discord.ext.commands import BadArgument, Cog, CommandError, Context
 from discord.utils import escape_markdown, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 
+from .events import display_error
 from .utils import utils
 
 EGG_COLOR = 0xF6DECF
@@ -786,6 +787,8 @@ class Misc(Cog):
 
             await ctx.send(embed=embed)
 
+        else:
+            await display_error(ctx, error)
 
 def setup(bot: utils.Bot):
     """Entry point for bot.load_extension."""
