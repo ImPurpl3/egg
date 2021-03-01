@@ -43,7 +43,6 @@ from discord.ext.commands import BadArgument, Cog, CommandError, Context
 from discord.utils import escape_markdown, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 
-from .events import display_error
 from .utils import utils
 
 EGG_COLOR = 0xF6DECF
