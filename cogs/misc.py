@@ -708,10 +708,7 @@ class Misc(Cog):
         ) as resp:
             data = await resp.json()
 
-        players = data["players"]
-        names = [escape_markdown(name) for name in players["list"]]
-        version = data["version"]
-        online= data["online"]
+        online = data["online"]
 
         embed = utils.BaseEmbed(ctx)
         embed.set_author(
@@ -722,6 +719,10 @@ class Misc(Cog):
         embed.add_field(name="Status", value="Online" if online else "Offline")
 
         if online:
+            players = data["players"]
+            names = [escape_markdown(name) for name in players["list"]]
+            version = data["version"]
+
             pl_online = players["online"]
             pl_max = players["max"]
             embed.add_field(name="Slots", value=f"{pl_online}/{pl_max}")
@@ -730,7 +731,7 @@ class Misc(Cog):
                 "\n".join(names[:10]) + f"\n*and {len(names) - 10} more players*"
             
             embed.add_field(name="Players", value=players_formatted, inline=False)
-        
+
         await ctx.send(embed=embed)
 
 
