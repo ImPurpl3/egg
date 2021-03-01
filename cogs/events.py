@@ -44,55 +44,6 @@ class Events(Cog):
         self.bot = bot
         self.previous_q_author = None
 
-    async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
-        """Sends an embed with error info to the channel the erroring command was invoked in."""
-        if isinstance(error, commands.CommandInvokeError):
-            name = error.original.__class__.__name__
-            message = error.original.args[0]
-        else:
-            name = error.__class__.__name__
-            message = error.args[0]
-
-        embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Command exception caught.", icon_url=ctx.me.avatar_url)
-
-        embed.add_field(name="Exception", value=f"``{name}: {message}``", inline=False)
-
-        message = await ctx.send(embed=embed)
-
-        if isinstance(error, commands.NoPrivateMessage):
-            return
-
-        await message.add_reaction("*️⃣")
-
-        def owner_check(r: discord.Reaction, u: Union[discord.Member, discord.User]) -> bool:
-            return r.emoji == "*️⃣" and u.id == 89425361024073728 and r.message.id == message.id
-
-        try:
-            await self.bot.wait_for(
-                "reaction_add",
-                timeout=10,
-                check=owner_check
-            )
-        except asyncio.TimeoutError:
-            return await message.clear_reactions()
-
-        full_traceback = "".join(
-            traceback.format_exception(type(error), error, error.__traceback__, chain=True)
-        )
-
-        if len(full_traceback) > 2000:
-            pages = utils.slicer(full_traceback, 1950)
-
-            await ctx.send(f"Traceback: ```python\n{pages[0]}\n```")
-            for page in pages[1:]:
-                await ctx.send(f"```python\n{page}\n```")
-
-        else:
-            await ctx.send(f"Traceback: ```python\n{full_traceback}\n```")
-
-        return await message.clear_reactions()
-
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Type[commands.CommandError]):
         """Fired when an error is raised during command invocation."""
@@ -100,7 +51,7 @@ class Events(Cog):
             return
 
         await ctx.message.add_reaction("<:oof:663527838812602369>")
-        return await self.display_error(ctx, error)
+        return await utils.display_error(ctx, error)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):

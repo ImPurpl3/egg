@@ -3,19 +3,23 @@ import io
 import math
 import os
 import re
+import traceback
+from asyncio import TimeoutError
 from datetime import datetime
 from sqlite3 import Row
-from typing import Any, List, Iterable, Sequence, Tuple, Union
+from typing import Any, List, Iterable, Sequence, Tuple, Type, Union
 
 import parsedatetime as pdt
 from aiohttp import ClientSession
-from discord import Embed, Member, NotFound, User
+from discord import Embed, Member, NotFound, Reaction, User
 from discord.ext import commands
 from discord.ext.commands import BadArgument, BucketType, Context, Converter, CooldownMapping
 from discord.utils import find
 from PIL import Image
 
 from . import asqlite
+
+EGG_COLOR = 0xF6DECF
 
 
 class Database:
@@ -377,3 +381,53 @@ def parse_time(text: str) -> Tuple[datetime, str]:
         remaining = text[:begin].strip()
 
     return dt, remaining
+
+
+async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
+    """Sends an embed with error info to the channel the erroring command was invoked in."""
+    if isinstance(error, commands.CommandInvokeError):
+        name = error.original.__class__.__name__
+        message = error.original.args[0]
+    else:
+        name = error.__class__.__name__
+        message = error.args[0]
+
+    embed = Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
+    embed.set_author(name="Command exception caught.", icon_url=ctx.me.avatar_url)
+
+    embed.add_field(name="Exception", value=f"``{name}: {message}``", inline=False)
+
+    message = await ctx.send(embed=embed)
+
+    if isinstance(error, commands.NoPrivateMessage):
+        return
+
+    await message.add_reaction("*️⃣")
+
+    def owner_check(r: Reaction, u: Union[Member, User]) -> bool:
+        return r.emoji == "*️⃣" and u.id == 89425361024073728 and r.message.id == message.id
+
+    try:
+        await self.bot.wait_for(
+            "reaction_add",
+            timeout=10,
+            check=owner_check
+        )
+    except TimeoutError:
+        return await message.clear_reactions()
+
+    full_traceback = "".join(
+        traceback.format_exception(type(error), error, error.__traceback__, chain=True)
+    )
+
+    if len(full_traceback) > 2000:
+        pages = slicer(full_traceback, 1950)
+
+        await ctx.send(f"Traceback: ```python\n{pages[0]}\n```")
+        for page in pages[1:]:
+            await ctx.send(f"```python\n{page}\n```")
+
+    else:
+        await ctx.send(f"Traceback: ```python\n{full_traceback}\n```")
+
+    return await message.clear_reactions()

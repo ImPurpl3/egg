@@ -788,7 +788,7 @@ class Misc(Cog):
             await ctx.send(embed=embed)
 
         else:
-            await display_error(ctx, error)
+            await utils.display_error(ctx, error)
 
 def setup(bot: utils.Bot):
     """Entry point for bot.load_extension."""
