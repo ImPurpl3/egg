@@ -334,10 +334,10 @@ def parse_time(text: str) -> Tuple[datetime, str]:
     now = datetime.utcnow()
     remaining = None
 
-    if date_string.endswith("from now"):
-        date_string = date_string[:-8].strip()
+    if text.endswith("from now"):
+        text = text[:-8].strip()
 
-    elements = calendar.nlp(date_string, sourceTime=now)
+    elements = calendar.nlp(text, sourceTime=now)
     if elements is None or len(elements) == 0:
         raise ValueError("could not parse time")
 
@@ -346,7 +346,7 @@ def parse_time(text: str) -> Tuple[datetime, str]:
     if not status.hasDateOrTime:
         raise ValueError("could not parse time")
 
-    if begin not in (0, 1) and end != len(date_string):
+    if begin not in (0, 1) and end != len(text):
         raise ValueError("could not parse time")
 
     if not status.hasTime:
@@ -362,18 +362,18 @@ def parse_time(text: str) -> Tuple[datetime, str]:
 
     if begin in (0, 1):
         if begin == 1:
-            if date_string[0] != "\"":
+            if text[0] != "\"":
                 raise ValueError("could not parse time")
 
-            if not (end < len(date_string) and date_string[end] == "\""):
+            if not (end < len(text) and text[end] == "\""):
                 raise ValueError("could not parse time")
 
-            remaining = date_string[end + 1:].lstrip(" ,.!")
+            remaining = text[end + 1:].lstrip(" ,.!")
 
         else:
-            remaining = date_string[end:].lstrip(" ,.!")
+            remaining = text[end:].lstrip(" ,.!")
 
-    elif len(date_string) == end:
-        remaining = date_string[:begin].strip()
+    elif len(text) == end:
+        remaining = text[:begin].strip()
 
     return dt, remaining
