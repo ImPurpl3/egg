@@ -39,7 +39,7 @@ import discord
 import parsedatetime as pdt
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord.utils import escape_markdown
+from discord.utils import escape_markdown, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 
 from .utils import utils
@@ -735,6 +735,39 @@ class Misc(Cog):
             embed.add_field(name="Players", value=players_formatted, inline=False)
 
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def selfmute(self, ctx: Context, *, args: utils.parse_time):
+        """Mutes you for the given time and reason.
+           Use at your own risk as admins won't remove your mute.
+           If you give a date and/or time, make sure to convert to UTC before.
+
+           Examples:
+           -  egg selfmute 8 hours sleep
+           -  egg selfmute homework 45 minutes
+        """
+        until, reason = args
+        now = datetime.utcnow()
+        delta = utils.format_seconds((until - now).total_seconds())
+
+        muted_role = ctx.guild.get_role(662089736239972373)
+
+        embed = utils.BaseEmbed(ctx)
+        embed.set_author(
+            name=f"Muted {ctx.author} for {delta}.",
+            icon_url=ctx.author.avatar_url
+        )
+        embed.add_field(name="Reason", value=reason)
+
+        await ctx.send(embed=embed)
+        await ctx.author.add_roles(muted_role)
+
+        await sleep_until(until)
+
+        await ctx.send(
+            f"Unmuted {ctx.author.mention}.\nMute reason: {reason}"
+        )
+        await ctx.author.remove_roles(muted_role)
 
 
 def setup(bot: utils.Bot):
