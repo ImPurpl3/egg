@@ -778,7 +778,7 @@ class Misc(Cog):
             embed = utils.BaseEmbed(
                 ctx,
                 description="Check for typos and make sure you're "
-                            "giving a valid time, for example 1 hour,"
+                            "giving a valid time, for example 1 hour, "
                             "2 hours or 2h."
             )
             embed.set_author(
