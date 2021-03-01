@@ -384,7 +384,9 @@ def parse_time(text: str) -> Tuple[datetime, str]:
 
 
 async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
-    """Sends an embed with error info to the channel the erroring command was invoked in."""
+    """Sends an embed with error info to the channel
+       the erroring command was invoked in.
+    """
     if isinstance(error, commands.CommandInvokeError):
         name = error.original.__class__.__name__
         message = error.original.args[0]
