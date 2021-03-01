@@ -777,11 +777,13 @@ class Misc(Cog):
         if isinstance(error, BadArgument):
             embed = utils.BaseEmbed(
                 ctx,
-                description="Check for typos and make sure you're"
+                description="Check for typos and make sure you're "
                             "giving a valid time, for example 1 hour,"
                             "2 hours or 2h."
             )
-            embed.set_author(name="Could not parse time.")
+            embed.set_author(
+                name="Could not parse time.", icon_url=ctx.me.avatar_url
+            )
 
             await ctx.send(embed=embed)
 
