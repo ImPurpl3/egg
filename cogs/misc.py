@@ -774,8 +774,7 @@ class Misc(Cog):
 
     @selfmute.error
     async def invalid_input(self, ctx: Context, error: Type[CommandError]):
-        if isinstance(error, BadArgument) \
-        and isinstance(error.original, ValueError):
+        if isinstance(error, BadArgument):
             embed = utils.BaseEmbed(
                 ctx,
                 description="Check for typos and make sure you're"
