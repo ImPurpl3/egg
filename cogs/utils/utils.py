@@ -3,9 +3,11 @@ import io
 import math
 import os
 import re
+from datetime import datetime
 from sqlite3 import Row
 from typing import Any, List, Iterable, Sequence, Union
 
+import parsedatetime as pdt
 from aiohttp import ClientSession
 from discord import Embed, Member, NotFound, User
 from discord.ext import commands
@@ -322,3 +324,56 @@ def format_time(seconds: Union[float, int]):
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+def parse_time(text: str) -> tuple[datetime, str]:
+    """Parses a time delta from the given text and returns
+       a datetime and the remaining text.
+    """
+    calendar = pdt.Calendar(version=pdt.VERSION_CONTEXT_STYLE)
+    now = datetime.utcnow()
+    remaining = None
+
+    if date_string.endswith("from now"):
+        date_string = date_string[:-8].strip()
+
+    elements = calendar.nlp(date_string, sourceTime=now)
+    if elements is None or len(elements) == 0:
+        raise ValueError("could not parse time")
+
+    dt, status, begin, end, dt_string = elements[0]
+
+    if not status.hasDateOrTime:
+        raise ValueError("could not parse time")
+
+    if begin not in (0, 1) and end != len(date_string):
+        raise ValueError("could not parse time")
+
+    if not status.hasTime:
+        dt = dt.replace(
+            hour=now.hour,
+            minute=now.minute,
+            second=now.second,
+            microsecond=now.microsecond
+        )
+
+    if status.accuracy == pdt.pdtContext.ACU_HALFDAY:
+        dt = dt.replace(day=now.day + 1)
+
+    if begin in (0, 1):
+        if begin == 1:
+            if date_string[0] != "\"":
+                raise ValueError("could not parse time")
+
+            if not (end < len(date_string) and date_string[end] == "\""):
+                raise ValueError("could not parse time")
+
+            remaining = date_string[end + 1:].lstrip(" ,.!")
+
+        else:
+            remaining = date_string[end:].lstrip(" ,.!")
+
+    elif len(date_string) == end:
+        remaining = date_string[:begin].strip()
+
+    return dt, remaining
