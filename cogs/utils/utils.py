@@ -5,7 +5,7 @@ import os
 import re
 from datetime import datetime
 from sqlite3 import Row
-from typing import Any, List, Iterable, Sequence, Union
+from typing import Any, List, Iterable, Sequence, Tuple, Union
 
 import parsedatetime as pdt
 from aiohttp import ClientSession
@@ -326,7 +326,7 @@ def format_time(seconds: Union[float, int]):
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
-def parse_time(text: str) -> tuple[datetime, str]:
+def parse_time(text: str) -> Tuple[datetime, str]:
     """Parses a time delta from the given text and returns
        a datetime and the remaining text.
     """
