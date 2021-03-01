@@ -32,13 +32,14 @@ import textwrap
 import time
 from datetime import datetime, timedelta
 from io import BytesIO
+from typing import Type
 from urllib import parse
 
 import aiohttp
 import discord
 import parsedatetime as pdt
 from discord.ext import commands
-from discord.ext.commands import Cog, Context
+from discord.ext.commands import BadArgument, Cog, CommandError, Context
 from discord.utils import escape_markdown, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 
@@ -750,6 +751,8 @@ class Misc(Cog):
         now = datetime.utcnow()
         delta = utils.format_seconds((until - now).total_seconds())
 
+        reason = reason or None
+
         muted_role = ctx.guild.get_role(662089736239972373)
 
         embed = utils.BaseEmbed(ctx)
@@ -768,6 +771,20 @@ class Misc(Cog):
             f"Unmuted {ctx.author.mention}.\nSelfmute reason: {reason}"
         )
         await ctx.author.remove_roles(muted_role)
+
+    @selfmute.error
+    async def invalid_input(self, ctx: Context, error: Type[CommandError]):
+        if isinstance(error, BadArgument) \
+        and isinstance(error.original, ValueError):
+            embed = utils.BaseEmbed(
+                ctx,
+                description="Check for typos and make sure you're"
+                            "giving a valid time, for example 1 hour,"
+                            "2 hours or 2h."
+            )
+            embed.set_author(name="Could not parse time.")
+
+            await ctx.send(embed=embed)
 
 
 def setup(bot: utils.Bot):
