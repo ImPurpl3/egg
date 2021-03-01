@@ -719,9 +719,11 @@ class Misc(Cog):
         embed.add_field(name="Status", value="Online" if online else "Offline")
 
         if online:
+            version = data["version"]
+            embed.add_field(name="Version", value=version)
+
             players = data["players"]
             names = [escape_markdown(name) for name in players["list"]]
-            version = data["version"]
 
             pl_online = players["online"]
             pl_max = players["max"]
