@@ -39,6 +39,7 @@ import discord
 import parsedatetime as pdt
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from discord.utils import escape_markdown
 from PIL import Image, ImageDraw, ImageFont
 
 from .utils import utils
@@ -697,6 +698,39 @@ class Misc(Cog):
         )
         embed.set_image(url=url)
 
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=["mc"])
+    async def minecraft(self, ctx: Context):
+        """Shows the official Ceapa Cool minecraft server status"""
+        async with self.bot.session.get(
+            "https://api.mcsrvstat.us/2/minecraft.ceapa.cool"
+        ) as resp:
+            data = await resp.json()
+
+        players = data["players"]
+        names = [escape_markdown(name) for name in players["list"]]
+        version = data["version"]
+        online= data["online"]
+
+        embed = utils.BaseEmbed(ctx)
+        embed.set_author(
+            name="Minecraft Server",
+            icon_url=ctx.me.avatar_url
+        )
+        embed.add_field(name="Connect", value="minecraft.ceapa.cool", inline=False)
+        embed.add_field(name="Status", value="Online" if online else "Offline")
+
+        if online:
+            pl_online = players["online"]
+            pl_max = players["max"]
+            embed.add_field(name="Slots", value=f"{pl_online}/{pl_max}")
+
+            players_formatted = "\n".join(names) if len(names) <= 10 else \
+                "\n".join(names[:10]) + f"\n*and {len(names) - 10} more players*"
+            
+            embed.add_field(name="Players", value=players_formatted, inline=False)
+        
         await ctx.send(embed=embed)
 
 
