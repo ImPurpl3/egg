@@ -730,6 +730,9 @@ class Misc(Cog):
             pl_max = players["max"]
             embed.add_field(name="Slots", value=f"{pl_online}/{pl_max}")
 
+            if not players:
+                return await ctx.send(embed=embed)
+
             players_formatted = "\n".join(names) if len(names) <= 10 else \
                 "\n".join(names[:10]) + f"\n*and {len(names) - 10} more players*"
             
