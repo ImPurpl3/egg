@@ -723,15 +723,19 @@ class Misc(Cog):
             version = data["version"]
             embed.add_field(name="Version", value=version)
 
+            if not players:
+                return await ctx.send(embed=embed)
+
             players = data["players"]
-            names = [escape_markdown(name) for name in players["list"]]
 
             pl_online = players["online"]
             pl_max = players["max"]
             embed.add_field(name="Slots", value=f"{pl_online}/{pl_max}")
 
-            if not players:
+            if pl_online == 0:
                 return await ctx.send(embed=embed)
+
+            names = [escape_markdown(name) for name in players["list"]]
 
             players_formatted = "\n".join(names) if len(names) <= 10 else \
                 "\n".join(names[:10]) + f"\n*and {len(names) - 10} more players*"
