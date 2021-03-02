@@ -723,11 +723,7 @@ class Misc(Cog):
             version = data["version"]
             embed.add_field(name="Version", value=version)
 
-            if not players:
-                return await ctx.send(embed=embed)
-
             players = data["players"]
-
             pl_online = players["online"]
             pl_max = players["max"]
             embed.add_field(name="Slots", value=f"{pl_online}/{pl_max}")
