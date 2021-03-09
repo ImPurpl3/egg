@@ -793,6 +793,11 @@ class Misc(Cog):
         else:
             await utils.display_error(ctx, error)
 
+    @commands.command()
+    async def test(self, ctx):
+        await ctx.send("cum")
+
+
 def setup(bot: utils.Bot):
     """Entry point for bot.load_extension."""
     bot.add_cog(Misc(bot))
