@@ -1,5 +1,7 @@
 # egg
-bot for Ceapa Cool's discord server
+bot for Ceapa Cool's discord server&nbsp;
+
+<sub>i don't care if you run your own instance but i won't help you with hardcoding everything to work on your server, so you're on your own</sub>
 
 ## contributing
 whoever's bored enough to contribute is free to do so but there's a couple things i'd appreciate
