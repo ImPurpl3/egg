@@ -62,7 +62,7 @@ class Owner(Cog):
 
                 embed.add_field(
                     name="Error",
-                    value=f"``{exc.original.__class__.__name__}: {str(exc.original)}``"
+                    value=f"`{exc.original.__class__.__name__}: {str(exc.original)}`"
                 )
 
                 return await ctx.send(embed=embed)
@@ -81,12 +81,12 @@ class Owner(Cog):
                 try:
                     self.bot.reload_extension(f"cogs.{ext[:-3]}")
                 except commands.ExtensionFailed as exc:
-                    failed_extensions.append(f"{ext}: ``{exc.original.__class__.__name__}``")
+                    failed_extensions.append(f"{ext}: `{exc.original.__class__.__name__}`")
             except commands.ExtensionNotLoaded:
                 try:
                     self.bot.load_extension(f"cogs.{ext[:-3]}")
                 except commands.ExtensionFailed as exc:
-                    failed_extensions.append(f"{ext}: ``{exc.original.__class__.__name__}``")
+                    failed_extensions.append(f"{ext}: `{exc.original.__class__.__name__}`")
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
         embed.set_author(name="All extensions reloaded.", icon_url=ctx.me.avatar_url)

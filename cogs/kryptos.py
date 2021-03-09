@@ -175,8 +175,8 @@ class Krypt0s(commands.Cog):
         """Strips image bytes from all non-ASCII characters."""
         if url is None and not ctx.message.attachments:
             embed = discord.Embed(
-                description="Either use ``egg imgtxt image_url`` or send only " \
-                            "``egg imgtxt`` with an image attached to the message.",
+                description="Either use `egg imgtxt image_url` or send only " \
+                            "`egg imgtxt` with an image attached to the message.",
                 color=EGG_COLOR,
                 timestamp=ctx.message.created_at
             )
