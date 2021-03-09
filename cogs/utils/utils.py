@@ -383,7 +383,7 @@ def parse_time(text: str) -> Tuple[datetime, str]:
     return dt, remaining
 
 
-async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
+async def display_error(ctx: Context, error: Type[commands.CommandError]):
     """Sends an embed with error info to the channel
        the erroring command was invoked in.
     """
@@ -410,7 +410,7 @@ async def display_error(self, ctx: Context, error: Type[commands.CommandError]):
         return r.emoji == "*️⃣" and u.id == 89425361024073728 and r.message.id == message.id
 
     try:
-        await self.bot.wait_for(
+        await ctx.bot.wait_for(
             "reaction_add",
             timeout=10,
             check=owner_check
