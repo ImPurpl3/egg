@@ -1,0 +1,3 @@
+[submodule "leaderboard"]
+	path = leaderboard
+	url = https://github.com/Satoqz/leaderboard
