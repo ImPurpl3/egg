@@ -300,30 +300,6 @@ class Levels(Cog):
         """Sends a link to the leaderboard."""
         await ctx.send("https://leaderboard.cbt.cool")
 
-    @commands.command()
-    @commands.is_owner()
-    async def rankcard(self, ctx: Context, *, member: discord.Member = None):
-        """Shows a member's rank information."""
-        member = member or ctx.author
-
-        await self.bot.db.execute("INSERT OR IGNORE INTO levels (id) VALUES (?)", member.id)
-        data = dict(await self.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", member.id))
-
-        if not (image_data := data.get("image")):
-            with open("./assets/images/DefaultBg.png", "rb") as f:
-                image = BytesIO(f.read())
-        else:
-            image_bytes = decodebytes(bytes(image_data, "utf-8"))
-            image = BytesIO(image_bytes)
-
-        color1 = data.get("color1") or "0B9501"
-        color2 = data.get("color2") or "FFFFFF"
-        color3 = data.get("color3") or "B9B9B9"
-
-    def create_card(self, background_image: BytesIO,
-                    color1: str, color2: str, color3: str):
-        """Renders and sends a member's rank card."""
-
 
 def setup(bot: utils.Bot):
     bot.add_cog(Levels(bot))
