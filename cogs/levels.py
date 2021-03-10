@@ -298,30 +298,7 @@ class Levels(Cog):
     @commands.command(aliases=["leaderboard", "lb"])
     async def levels(self, ctx: Context):
         """Sends a link to the leaderboard."""
-        tooltip = random.choice(
-            [
-                "cock and ball torture",
-                "flushed cum egg cameron",
-                "why are you looking here \N{FLUSHED FACE}",
-                "egg cum",
-                "egg",
-                "cum fish",
-                "cum rat says hello"
-            ]
-        )
-        embed = discord.Embed(
-            title="Or here.",
-            description=f"[Or here \N{FLUSHED FACE}](https://cum.rest/levels \"{tooltip}\")",
-            color=EGG_COLOR,
-            timestamp=ctx.message.created_at, url="https://cum.rest/levels"
-        )
-        embed.set_author(
-            name="Click here to view the leaderboard.",
-            url="https://cum.rest/levels",
-            icon_url=ctx.me.avatar_url
-        )
-        embed.set_thumbnail(url="http://cum.rest/imgs/cum.png")
-        await ctx.send(embed=embed)
+        await ctx.send("https://leaderboard.cbt.cool")
 
     @commands.command()
     @commands.is_owner()
