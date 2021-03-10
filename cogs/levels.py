@@ -150,52 +150,6 @@ class Levels(Cog):
                 after.id
             )
 
-    @commands.command()
-    @commands.is_owner()
-    async def migrate(self, ctx: Context):
-        with open("mee6.json", "r") as f:
-            levels = json.load(f)
-
-        data = []
-        failed = []
-
-        for i in levels:
-            if not i["hasId"]:
-                user = ctx.guild.get_member_named(i["name"])
-                if not user:
-                    failed.append(i["name"])
-                    continue
-                _id = user.id
-            else:
-                _id = int(i["id"].strip("/"))
-
-            if "k" in i["exp"]:
-                exp = int(float(i["exp"].replace("k", ""))*1000)
-            else:
-                exp = int(i["exp"])
-
-            level = int(i["level"])
-            level_xp = exp
-
-            for i in range(level):
-                level_xp -= 5 * i**2 + 50*i + 100
-
-            data.append((_id, exp, level, level_xp))
-
-        await self.bot.db.executemany("INSERT OR IGNORE INTO levels (id, xp, level, level_xp) VALUES (?, ?, ?, ?)", data)
-        await ctx.send(f"migration done, added {len(data)} members' xp and level ({len(failed)} failed)")
-
-    @commands.command()
-    @commands.is_owner()
-    async def rewardsync(self, ctx: Context):
-        all_rows = await self.bot.db.fetchall("SELECT * FROM levels")
-        for row in all_rows:
-            if not (member := ctx.guild.get_member(row["id"])):
-                continue
-            for level, role_id in ranks.items():
-                if row["level"] >= level and (role := ctx.guild.get_role(role_id)) not in member.roles:
-                    await member.add_roles(role)
-
     async def send_rank_data_from_row(self, ctx: Context, row: Row):
         """Sends a user's rank information from a database row.
            Used when a deleted user is returned by utils.RankedUser."""
