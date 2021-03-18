@@ -52,6 +52,8 @@ class Database:
                 await cursor.execute(query, *parameters)
                 return await cursor.fetchall()
 
+    fetch = fetchall
+
     async def fetchmany(self, query: str, *parameters, size: int = None) -> List[Row]:
         """Executes an SQL query and fetches the desired amount of returned rows."""
         async with asqlite.connect(self.path) as connection:
