@@ -143,7 +143,7 @@ class Levels(Cog):
                 str(after),
                 after.id
             )
-        elif str(before.avatar_url) != str(after.avatar_url):
+        if str(before.avatar_url) != str(after.avatar_url):
             await self.bot.db.execute(
                 "UPDATE levels SET last_known_avatar_url = ? WHERE id = ?",
                 str(after.avatar_url_as(static_format="png", size=512)),
