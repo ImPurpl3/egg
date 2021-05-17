@@ -252,7 +252,7 @@ class Levels(Cog):
     @commands.command(aliases=["leaderboard", "lb"])
     async def levels(self, ctx: Context):
         """Sends a link to the leaderboard."""
-        await ctx.send("https://leaderboard.cbt.cool")
+        await ctx.send("https://leaderboard.veeps.moe")
 
 
 def setup(bot: utils.Bot):
