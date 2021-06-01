@@ -21,203 +21,181 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import re
+from typing import Union
 
-from discord import Message, PartialEmoji, RawReactionActionEvent, Role
+from discord import PartialEmoji, RawReactionActionEvent, Role
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord.utils import get
 
 from .utils import utils
 
-
-class CategoryEntry:
-    pattern = re.compile(r"^(<:.+?:\d+>|.*):\s*(.+)$")
-
-    def __init__(self, emoji: str, description: str):
-        self.description = description
-        self.emoji = emoji
-
-    def __eq__(self, other):
-        if isinstance(other, CategoryEntry):
-            return other.description == self.description and other.emoji == self.emoji
-        return False
-
-    def __str__(self) -> str:
-        return f"{self.emoji}: {self.description}"
-
-    @classmethod
-    def from_string(cls, line: str):
-        return cls(*cls.pattern.match(line).groups())
-
-
-class RoleCategory:
-    def __init__(self, message: Message, name: str):
-        self.message = message
-
-        self.name = name
-        self.entries = []
-        self.title = ""
-
-        self.parse_lines()
-
-    def parse_lines(self):
-        content: str = self.message.content
-        lines = [i for i in content.split("\n") if i]
-        self.title = lines.pop(0).strip("*_:")
-
-        for line in lines:
-            self.entries.append(CategoryEntry.from_string(line))
-
-    async def add_entry(self, entry: CategoryEntry):
-        await self.message.add_reaction(entry.emoji)
-        content = f"{self.message.content}\n{entry}"
-        
-        await self.message.edit(content=content)
-        self.entries.append(entry)
-
-    async def remove_entry(self, entry: CategoryEntry):
-        self.entries.remove(entry)
-        entry_list = "\n".join(str(i) for i in self.entries)
-        content = f"**{self.title}:**\n{entry_list}"
-
-        await self.message.edit(content=content)
-        await self.message.clear_reaction(entry.emoji)
+SUCCESS_EMOJI = "<:yes:567019270467223572>"
 
 
 class Roles(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
-        self.channel_id = 797633928152088586
+        self.channel = bot.get_channel(797633928152088586)
+        self.role_dict = {}
 
-        self.categories = []
-        self.role_ids = {}
+        self.bot.loop.create_task(self.cache_roles())
 
-        self.bot.loop.create_task(self.set_role_ids())
-
-    async def fetch_categories(self) -> list:
-        data = await self.bot.db.fetchall("SELECT * FROM r_categories")
-        message_ids = {i["name"]: i["message_id"] for i in data}
-        names = {v: k for k, v in message_ids.items()}
-
-        history = self.bot.get_channel(self.channel_id).history(limit=None)
-        messages = [message async for message in history if message.id in message_ids.values()]
-
-        return [
-            RoleCategory(message, names[message.id])
-            for message in messages
-        ]
-
-    async def set_role_ids(self):
-        roles = await self.bot.db.fetchall("SELECT * FROM roles")
-        self.role_ids = {i["emoji"]: i["role_id"] for i in roles}
-
-    async def get_category(self, id_or_name: str) -> RoleCategory:
-        if not self.categories:
-            self.categories = await self.fetch_categories()
-
-        if id_or_name.isdigit():
-            for category in self.categories:
-                if category.message.id == int(id_or_name):
-                    return category
-        else:
-            for category in self.categories:
-                if category.name == id_or_name:
-                    return category
-
-    async def get_role_id(self, emoji: PartialEmoji) -> int:
-        if not self.role_ids:
-            await self.set_role_ids()
-        return self.role_ids.get(str(emoji))
+    async def cache_roles(self):
+        data = await self.bot.db.fetch("SELECT * FROM roles")
+        for i in data:
+            self.role_dict["emoji"] = dict(i)
 
     @commands.group(invoke_without_command=True)
     async def roles(self, ctx: Context):
-        await ctx.send(f"Moved to <#{self.channel_id}>.")
-
-    @roles.command()
-    @commands.has_permissions(administrator=True)
-    async def newcategory(self, ctx: Context, name: str, *, title: str):
-        channel = self.bot.get_channel(self.channel_id)
-        message = await channel.send(f"**{title}:**")
-
-        await self.bot.db.execute(
-            "INSERT INTO r_categories (name, message_id) VALUES (?, ?)",
-            name, message.id
-        )
-        self.categories.append(RoleCategory(message, name))
-
-        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
-
-    @roles.command()
-    @commands.has_permissions(administrator=True)
-    async def new(self, ctx: Context, category: str, role: Role, emoji: str, *, text: str):
-        category = await self.get_category(category)
-        entry = CategoryEntry(emoji, text)
-
-        await self.bot.db.execute(
-            "INSERT INTO roles (emoji, role_id) VALUES (?, ?)",
-            emoji, role.id
-        )
-        await category.add_entry(entry)
-        self.role_ids[emoji] = role.id
-
-        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
-
-    @roles.command()
-    @commands.has_permissions(administrator=True)
-    async def delete(self, ctx: Context, category: str, *, role_identifier: str):
-        try:
-            role = (await commands.RoleConverter().convert(ctx, role_identifier)).id
-        except commands.RoleNotFound:
-            role = await self.get_role_id(role_identifier)
-
-        if isinstance(role, int):
-            emojis = {v: k for k, v in self.role_ids.items()}
-            emoji = emojis[role]
+        """Command group for managing reaction roles and categories."""
+        if not ctx.author.guild_permissions.administrator:
+            await ctx.send("<#797633928152088586>")
         else:
-            emoji = role
+            await ctx.send_help(self.roles)
 
-        category = await self.get_category(category)
-        await self.bot.db.execute("DELETE FROM roles WHERE emoji = ?", emoji)
-        await category.remove_entry(get(category.entries, emoji=emoji))
+    @commands.has_permissions(administrator=True)
+    @roles.command(aliases=["new"])
+    async def add(self, ctx: Context, category_id: int,
+                  role: Union[Role, str], emoji: PartialEmoji, *, text: str):
+        """Adds a role to the given category.
 
-        await ctx.message.add_reaction(get(ctx.guild.emojis, name="cumrat"))
+           <role> can be an existing role name, id or mention;
+           or alternatively a name which a new role will be created as.
 
+           As per usual, all arguments except the last one (for example <role>)
+           require "quotes" around them if it's multiple words.
+
+           Example usage:
+           egg roles add 797953789826302002 "flying disk" 🥏 Gives access to the flying disk channel.
+               - In case a role called flying disk doesn't exist, it'll create one on the fly.
+        """
+        if emoji.id and emoji.id not in [e.id for e in self.bot.emojis]:
+            return await ctx.send("A custom emoji can only be added if I'm able to see it.")
+
+        message = await self.channel.fetch_message(category_id)
+        text = text.replace("\n", " ")
+        new_content = message.content + f"\n{emoji}: {text}"
+
+        if isinstance(role, str):
+            await ctx.guild.create_role(name=role)
+
+        await self.bot.db.execute(
+            "INSERT INTO roles (emoji, role_id, category_id, description) VALUES (?, ?, ?, ?)",
+            str(emoji), role.id, category_id, text
+        )
+        self.role_dict[str(emoji)] = {
+            "category_id": category_id,
+            "emoji": str(emoji),
+            "role_id": role.id,
+            "description": text
+        }
+
+        await message.edit(content=new_content)
+        await message.add_reaction(emoji)
+
+        await ctx.message.add_reaction(SUCCESS_EMOJI)
+
+    @commands.has_permissions(administrator=True)
+    @roles.command(aliases=["remove"])
+    async def delete(self, ctx: Context, *, emoji: PartialEmoji):
+        """Deletes a role from its respective category.
+
+           The command's only parameter is the emoji of the role that's being deleted. 
+
+           Example usage:
+           egg roles delete 🥏
+        """
+        role_data = await self.bot.db.fetchone("SELECT * FROM roles WHERE emoji = ?", str(emoji))
+        category_id = role_data["category_id"]
+        message = await self.channel.fetch_message(category_id)
+        
+        lines = message.content.split("\n")
+        lines.remove(f"{emoji}: {role_data['description']}")
+
+        await self.bot.db.execute("DELETE FROM roles WHERE emoji = ?", str(emoji))
+        del self.role_dict[str(emoji)]
+        await message.edit(content="\n".join(lines))
+        await message.clear_reaction(emoji)
+
+        await ctx.message.add_reaction(SUCCESS_EMOJI)
+
+    @commands.has_permissions(administrator=True)
+    @roles.group(invoke_without_command=True)
+    async def category(self, ctx: Context):
+        """Command group for managing role categories."""
+        await ctx.send_help(self.category)
+
+    @commands.has_permissions(administrator=True)
+    @category.command(aliases=["new", "create"])
+    async def add(self, ctx: Context, *, title: str):
+        """Adds a new category with the given title."""
+        title = title.strip("*:")
+        await self.channel.send(f"**{title}**:")
+
+        await ctx.message.add_reaction(SUCCESS_EMOJI)
+
+    @commands.has_permissions(administrator=True)
+    @category.command(aliases=["remove"])
+    async def delete(self, ctx: Context, category_id: int):
+        """Removes a category."""
+        await self.bot.db.execute("DELETE FROM roles WHERE category_id = ?", category_id)
+        self.role_dict = {
+            k: v for k, v in self.role_dict.items()
+            if v["category_id"] != category_id
+        }
+
+        message = await self.channel.fetch_message(category_id)
+        await message.delete()
+
+        await ctx.message.add_reaction(SUCCESS_EMOJI)
+
+    @commands.has_permissions(administrator=True)
+    @category.command()
+    async def title(self, ctx: Context, category_id: int, *, text: str):
+        """Edits a category's title.
+
+           Example usage:
+           egg roles category title 797953789826302002 Some cool new title
+               - Note that the ** and : are added automatically.
+        """
+        text = text.strip("*:")
+        message = await self.channel.fetch_message(category_id)
+        lines = message.content.split("\n")
+
+        if lines[0].startswith("**"):
+            lines[0] = f"**{text}**:"
+        else:
+            lines.insert(0, f"**{text}**:")
+
+        await message.edit(content="\n".join(lines))
+
+        await ctx.message.add_reaction(SUCCESS_EMOJI)
+
+    @Cog.listener(name="on_raw_reaction_add")
+    @Cog.listener(name="on_raw_reaction_remove")
     async def handle_reaction(self, payload: RawReactionActionEvent):
-        channel_id = payload.channel_id
-        guild_id = payload.guild_id
-        user_id = payload.user_id
+        if payload.channel_id != self.channel.id:
+            return
 
-        if channel_id != self.channel_id or user_id == self.bot.user.id:
+        if payload.user_id == self.bot.user.id:
             return
 
         emoji = payload.emoji
+        member = payload.member
 
-        if not (role_id := await self.get_role_id(emoji)):
+        if str(emoji) not in self.role_dict:
+            message = await self.channel.fetch_message(payload.message_id)
+            await message.remove_reaction(emoji, member)
             return
 
-        guild = self.bot.get_guild(guild_id)
-        member = guild.get_member(user_id)
+        guild = self.bot.get_guild(payload.guild_id)
+        role_id = self.role_dict[str(emoji)]["role_id"]
         role = guild.get_role(role_id)
 
         if payload.event_type == "REACTION_ADD" and role not in member.roles:
             await member.add_roles(role)
-            return True
-
-        if payload.event_type == "REACTION_REMOVE" and role in member.roles:
+        elif payload.event_type == "REACTION_REMOVE" and role in member.roles:
             await member.remove_roles(role)
-            return False
-
-        return None
-
-
-    @Cog.listener()
-    async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
-        await self.handle_reaction(payload)
-
-    @Cog.listener()
-    async def on_raw_reaction_remove(self, payload: RawReactionActionEvent):
-        await self.handle_reaction(payload)
 
 
 def setup(bot: utils.Bot):
