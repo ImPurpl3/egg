@@ -54,7 +54,7 @@ class Roles(Cog):
         helptext = dedent(HELPTEXT).strip().format(ctx.prefix, author_roles)
 
         embed = utils.BaseEmbed(ctx, description=helptext)
-        embed.set_author(name=f"Opt-in roles", icon_url=ctx.author.avatar_url)
+        embed.set_author(name=f"Opt-in roles", icon_url=ctx.author.avatar.url)
 
         for role in roles:
             embed.add_field(
@@ -69,20 +69,20 @@ class Roles(Cog):
 
         if not role:
             embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar_url)
+            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar.url)
             return await ctx.send(embed=embed)
 
         actual_role = ctx.guild.get_role(role["id"])
 
         if actual_role in ctx.author.roles:
             embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="You already have that role.", icon_url=ctx.author.avatar_url)
+            embed.set_author(name="You already have that role.", icon_url=ctx.author.avatar.url)
             return await ctx.send(embed=embed)
 
         mention = actual_role.mention
 
         embed = utils.BaseEmbed(ctx, description=f"Added {mention} to {ctx.author.mention}.")
-        embed.set_author(name="Role added.", icon_url=ctx.author.avatar_url)
+        embed.set_author(name="Role added.", icon_url=ctx.author.avatar.url)
 
         await ctx.author.add_roles(actual_role)
         await ctx.send(embed=embed)
@@ -93,20 +93,20 @@ class Roles(Cog):
 
         if not role:
             embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar_url)
+            embed.set_author(name="Role not found.", icon_url=ctx.author.avatar.url)
             return await ctx.send(embed=embed)
 
         actual_role = ctx.guild.get_role(role["id"])
 
         if actual_role not in ctx.author.roles:
             embed = utils.BaseEmbed(ctx)
-            embed.set_author(name="You do not have that role.", icon_url=ctx.author.avatar_url)
+            embed.set_author(name="You do not have that role.", icon_url=ctx.author.avatar.url)
             return await ctx.send(embed=embed)
 
         mention = actual_role.mention
 
         embed = utils.BaseEmbed(ctx, description=f"Removed {mention} from {ctx.author.mention}.")
-        embed.set_author(name="Role removed.", icon_url=ctx.author.avatar_url)
+        embed.set_author(name="Role removed.", icon_url=ctx.author.avatar.url)
 
         await ctx.author.remove_roles(actual_role)
         await ctx.send(embed=embed)

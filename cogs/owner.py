@@ -57,7 +57,7 @@ class Owner(Cog):
                     self.bot.load_extension(extension)
             except commands.ExtensionFailed as exc:
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name=f"Extension failed to load.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name=f"Extension failed to load.", icon_url=ctx.me.avatar.url)
                 embed.add_field(name="Extension", value=f"{extension[5:]}.py")
 
                 embed.add_field(
@@ -68,7 +68,7 @@ class Owner(Cog):
                 return await ctx.send(embed=embed)
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name=f"Extension reloaded.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name=f"Extension reloaded.", icon_url=ctx.me.avatar.url)
             embed.add_field(name="Extension", value=f"{extension[5:]}.py")
             return await ctx.send(embed=embed)
 
@@ -89,7 +89,7 @@ class Owner(Cog):
                     failed_extensions.append(f"{ext}: `{exc.original.__class__.__name__}`")
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="All extensions reloaded.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="All extensions reloaded.", icon_url=ctx.me.avatar.url)
 
         if failed_extensions:
             embed.description = "There were errors."

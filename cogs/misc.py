@@ -74,7 +74,7 @@ class Misc(Cog):
                 ext = imghdr.what(None, h=image)
                 if not ext:
                     embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                    embed.set_author(name="No images found.", icon_url=ctx.me.avatar_url)
+                    embed.set_author(name="No images found.", icon_url=ctx.me.avatar.url)
                     return await ctx.send(embed=embed)
 
                 ext = ext.lower().replace("jpeg", "jpg")
@@ -107,7 +107,7 @@ class Misc(Cog):
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name="Text must be 100 characters or less.",
-                icon_url=ctx.me.avatar_url
+                icon_url=ctx.me.avatar.url
             )
             return await ctx.send(embed=embed)
 
@@ -163,7 +163,7 @@ class Misc(Cog):
         embed.set_author(
             name=f"{amount} {utils.plural('member', amount)} "
                  f"{'are' if amount != 1 else 'is'} currently playing Roblox.",
-            icon_url=ctx.me.avatar_url
+            icon_url=ctx.me.avatar.url
         )
         await ctx.send(embed=embed)
 
@@ -177,7 +177,7 @@ class Misc(Cog):
             if maybe_index.isdigit():
                 if int(maybe_index) < 1:
                     embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                    embed.set_author(name="Invalid index.", icon_url=ctx.me.avatar_url)
+                    embed.set_author(name="Invalid index.", icon_url=ctx.me.avatar.url)
                     await ctx.send(embed=embed)
                 else:
                     term += f" {' '.join(index.split()[:-1])}"
@@ -195,7 +195,7 @@ class Misc(Cog):
             item = resp["list"][index]
         except IndexError:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="No definitions found.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="No definitions found.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         def convert_to_url(match):
@@ -228,7 +228,7 @@ class Misc(Cog):
             await ctx.send(embed=embed)
         except discord.HTTPException:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Definition over 2048 characters.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Definition over 2048 characters.", icon_url=ctx.me.avatar.url)
             embed.add_field(name="Link to definition", value=item["permalink"])
             await ctx.send(embed=embed)
 
@@ -245,7 +245,7 @@ class Misc(Cog):
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name="You're blacklisted from this command.",
-                icon_url=ctx.me.avatar_url
+                icon_url=ctx.me.avatar.url
             )
             return await ctx.send(embed=embed)
 
@@ -259,7 +259,7 @@ class Misc(Cog):
             color=EGG_COLOR,
             timestamp=ctx.message.created_at
         )
-        embed.set_author(name="Role added.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Role added.", icon_url=ctx.me.avatar.url)
 
         await ctx.author.add_roles(role)
         await ctx.send(embed=embed)
@@ -326,7 +326,7 @@ class Misc(Cog):
             data = await resp.json()
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=data["text"], icon_url=ctx.me.avatar_url)
+        embed.set_author(name=data["text"], icon_url=ctx.me.avatar.url)
         embed.set_image(url=data["image"])
 
         await ctx.send(embed=embed)
@@ -341,7 +341,7 @@ class Misc(Cog):
 
         async def invalid_input():
             embed = discord.Embed(color=EGG_COLOR)
-            embed.set_author(name="Time parser", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Time parser", icon_url=ctx.me.avatar.url)
 
             embed.add_field(name="Source date", value=now.strftime(fmt), inline=False)
             embed.add_field(name="Parsed date", value="?", inline=False)
@@ -392,7 +392,7 @@ class Misc(Cog):
             remaining = date_string[:begin].strip()
 
         embed = discord.Embed(color=EGG_COLOR)
-        embed.set_author(name="Time parser", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Time parser", icon_url=ctx.me.avatar.url)
 
         embed.add_field(name="Source date", value=now.strftime(fmt), inline=False)
         embed.add_field(name="Parsed date", value=dt.strftime(fmt), inline=False)
@@ -447,7 +447,7 @@ class Misc(Cog):
     @staticmethod
     async def invalid_color(ctx: Context, word: str):
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Invalid {word}.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Invalid {word}.", icon_url=ctx.me.avatar.url)
         return await ctx.send(embed=embed)
 
     @staticmethod
@@ -497,7 +497,7 @@ class Misc(Cog):
 
             if sum([is_hex, is_rgb, is_cmyk]) > 1:
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="Parsing error.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="Parsing error.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
             if is_hex:
@@ -594,7 +594,7 @@ class Misc(Cog):
             site = "N/A ({response.status} {response.reason})"
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Pong!", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Pong!", icon_url=ctx.me.avatar.url)
 
         embed.add_field(name="API heartbeat latency", value=f"{api_latency} ms")
         embed.add_field(name="Real latency (typing)", value=f"{typing} ms")
@@ -608,18 +608,18 @@ class Misc(Cog):
         if isinstance(user, discord.Member):
             if any(i in [r.id for r in user.roles] for i in (527939593128116232, 701823598360264774, 527939296829898753)):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
         try:
             await ctx.guild.ban(user, delete_message_days=7)
         except discord.Forbidden:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Banned {user}.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Banned {user}.", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Moderator", value=f"{ctx.author.mention} ({ctx.author})")
         await ctx.send(embed=embed)
         await self.bot.get_channel(662441356198674452).send(embed=embed)
@@ -630,18 +630,18 @@ class Misc(Cog):
         if isinstance(user, discord.Member):
             if any(i in [r.id for r in user.roles] for i in (527939593128116232, 701823598360264774, 527939296829898753)):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
         try:
             await ctx.guild.ban(user, delete_message_days=0)
         except discord.Forbidden:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Banned {user}.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Banned {user}.", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Moderator", value=f"{ctx.author.mention} ({ctx.author})")
         await ctx.send(embed=embed)
         await self.bot.get_channel(662441356198674452).send(embed=embed)
@@ -654,7 +654,7 @@ class Misc(Cog):
         color = ctx.guild.get_role(788054854568247328)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Trusted color toggled.", icon_url=ctx.author.avatar_url)
+        embed.set_author(name="Trusted color toggled.", icon_url=ctx.author.avatar.url)
 
         if no_color in ctx.author.roles:
             embed.add_field(name="State", value="On")
@@ -670,7 +670,7 @@ class Misc(Cog):
     @commands.command()
     async def info(self, ctx: Context):
         embed = utils.BaseEmbed(ctx)
-        embed.set_author(name="Bot information", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Bot information", icon_url=ctx.me.avatar.url)
 
         py_version = ".".join(str(i) for i in sys.version_info[:3])
         embed.add_field(name="Python version", value=py_version, inline=False)
@@ -679,7 +679,7 @@ class Misc(Cog):
         embed.add_field(name="Source", value=f"[Click here]({REPO} \"bad code alert\")", inline=False)
 
         vp = self.bot.get_user(self.bot.owner_id)
-        embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar_url)
+        embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar.url)
 
         await ctx.send(embed=embed)
 
@@ -714,7 +714,7 @@ class Misc(Cog):
         embed = utils.BaseEmbed(ctx)
         embed.set_author(
             name="Minecraft Server",
-            icon_url=ctx.me.avatar_url
+            icon_url=ctx.me.avatar.url
         )
         embed.add_field(name="Connect", value="minecraft.ceapa.cool", inline=False)
         embed.add_field(name="Status", value="Online" if online else "Offline")
@@ -761,7 +761,7 @@ class Misc(Cog):
         embed = utils.BaseEmbed(ctx)
         embed.set_author(
             name=f"Muted {ctx.author} for {delta}.",
-            icon_url=ctx.author.avatar_url
+            icon_url=ctx.author.avatar.url
         )
         embed.add_field(name="Reason", value=reason)
 
@@ -785,7 +785,7 @@ class Misc(Cog):
                             "2 hours or 2h."
             )
             embed.set_author(
-                name="Could not parse time.", icon_url=ctx.me.avatar_url
+                name="Could not parse time.", icon_url=ctx.me.avatar.url
             )
 
             await ctx.send(embed=embed)

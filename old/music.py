@@ -120,7 +120,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name="Already connected to a voice channel.",
-                icon_url=ctx.me.avatar_url)
+                icon_url=ctx.me.avatar.url)
             embed.add_field(name="Channel", value=ctx.me.voice.channel.name)
             return await ctx.send(embed=embed)
 
@@ -133,7 +133,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                 timestamp=ctx.message.created_at)
             embed.set_author(
                 name="You're not connected to a voice channel.",
-                icon_url=ctx.me.avatar_url)
+                icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         player.last_connected = None
@@ -141,7 +141,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
         await asyncio.sleep(1)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Joined a voice channel.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Joined a voice channel.", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Channel", value=ctx.me.voice.channel.name)
 
         await ctx.send(embed=embed)
@@ -157,14 +157,14 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if player.paused and not query:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player resumed.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player resumed.", icon_url=ctx.me.avatar.url)
 
             await player.set_pause(False)
             await ctx.send(embed=embed)
 
         elif not player.paused and not query:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player is not paused.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player is not paused.", icon_url=ctx.me.avatar.url)
 
             return await ctx.send(embed=embed)
 
@@ -187,7 +187,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name="Spotify functionality is not implemented yet.",
-                icon_url=ctx.me.avatar_url)
+                icon_url=ctx.me.avatar.url)
             await ctx.send()
             # await self.spotify_queue(ctx, player, query, start_queue)
 
@@ -203,13 +203,13 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                     soundcloud_links = ("https://soundcloud.com/", "https://www.soundcloud.com/")
                     if not query.startswith(soundcloud_links):
                         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                        embed.set_author(name="Invalid SoundCloud URL.", icon_url=ctx.me.avatar_url)
+                        embed.set_author(name="Invalid SoundCloud URL.", icon_url=ctx.me.avatar.url)
                         return await ctx.send(embed=embed)
 
             tracks = await self.bot.wavelink.get_tracks(query)
             if not tracks:
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="No songs found.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="No songs found.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
             if isinstance(tracks, wavelink.TrackPlaylist):
@@ -217,7 +217,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                     player.queue.append(Track(track.id, track.info, ctx=ctx))
 
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="Playlist queued.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="Playlist queued.", icon_url=ctx.me.avatar.url)
                 embed.add_field(
                     name="Playlist",
                     value=tracks.data["playlistInfo"]["name"],
@@ -242,7 +242,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
                 if player.queue and not start_queue:
                     embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                    embed.set_author(name="Song queued.", icon_url=ctx.me.avatar_url)
+                    embed.set_author(name="Song queued.", icon_url=ctx.me.avatar.url)
                     embed.add_field(name="Song", value=track.title, inline=False)
                     embed.add_field(name="Duration", value=track.f_duration, inline=False)
                     embed.add_field(name="URL", value=track.uri, inline=False)
@@ -258,7 +258,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                 player.last_channel = ctx.channel
 
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="Now playing:", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="Now playing:", icon_url=ctx.me.avatar.url)
                 embed.add_field(name="Song", value=player.queue[0].title)
                 embed.add_field(name="Duration", value=player.queue[0].f_duration)
                 embed.add_field(name="Requested by", value=player.queue[0].requester.mention)
@@ -280,25 +280,25 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
         elif player.is_connected and not player.is_playing and not player.queue:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player is not playing.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player is not playing.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
         elif player.paused:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player is already paused.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player is already paused.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player paused.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player paused.", icon_url=ctx.me.avatar.url)
 
             await player.set_pause(True)
             await ctx.send(embed=embed)
@@ -310,14 +310,14 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if player.paused:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player resumed.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player resumed.", icon_url=ctx.me.avatar.url)
 
             await player.set_pause(False)
             await ctx.send(embed=embed)
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player is not paused.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player is not paused.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
@@ -332,7 +332,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.queue:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         pages = self.slicer(list(player.queue), 10)
@@ -373,7 +373,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         embed.set_author(
             name=f"Player queue ({len(player.queue)} songs)",
-            icon_url=ctx.me.avatar_url)
+            icon_url=ctx.me.avatar.url)
         embed.set_footer(text=f"Page {page_number}/{len(pages)}")
 
         await ctx.send(embed=embed)
@@ -391,7 +391,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
         player.queue = []
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Queue cleared.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Queue cleared.", icon_url=ctx.me.avatar.url)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -401,13 +401,13 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.queue:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         track = player.queue.pop(index - 1)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Track removed.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Track removed.", icon_url=ctx.me.avatar.url)
         embed.add_field(
             name="Track",
             value=track.title if isinstance(track, wavelink.Track) else track)
@@ -423,13 +423,13 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name="Looping disabled." if player.loop is True else "Looping enabled.",
-                icon_url=ctx.me.avatar_url)
+                icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
             player.loop = not player.loop
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -441,11 +441,11 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
         if player.is_connected:
             if not player.queue:
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="Queue is empty.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Queue shuffled.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Queue shuffled.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
             random.shuffle(player.queue)
@@ -462,7 +462,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -473,12 +473,12 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         if player.bassboost is False:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Bass boost enabled.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Bass boost enabled.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
             await player.set_preq("BOOST")
@@ -486,7 +486,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Bass boost disabled.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Bass boost disabled.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
             await player.set_preq("FLAT")
@@ -503,23 +503,23 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         if not volume:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name=f"Current volume: {player.volume}%", icon_url=ctx.me.avatar_url)
+            embed.set_author(name=f"Current volume: {player.volume}%", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         if volume < 0 or volume > 1000:
             embed = discord.Embed(
                 description="Enter a valid volume (between 0 and 1000).",
                 color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Invalid volume.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Invalid volume.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Volume changed.", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Volume changed.", icon_url=ctx.me.avatar.url)
         embed.add_field(name="New volume", value=str(volume) + "%")
         embed.add_field(name="Old volume", value=str(player.volume) + "%")
 
@@ -534,7 +534,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Disconnected.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Disconnected.", icon_url=ctx.me.avatar.url)
             embed.add_field(name="Channel", value=ctx.me.voice.channel.name)
 
             await ctx.send(embed=embed)
@@ -548,7 +548,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         else:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -559,7 +559,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if player.is_connected and player.is_playing is True:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Song skipped.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Song skipped.", icon_url=ctx.me.avatar.url)
             embed.add_field(name="Song", value=player.current.title, inline=False)
             embed.add_field(
                 name="Now playing",
@@ -578,13 +578,13 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         elif player.is_connected and not player.is_playing and not player.queue:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="There's nothing to skip.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="There's nothing to skip.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
         elif not player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
@@ -607,7 +607,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
         cpu = node.stats.cpu_cores
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Wavelink information", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Wavelink information", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Connected nodes", value=len(self.bot.wavelink.nodes))
         embed.add_field(
             name="Best available node",
@@ -629,7 +629,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
 
         if not player.is_connected:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Not connected to a voice channel.", icon_url=ctx.me.avatar.url)
 
             await ctx.send(embed=embed)
 
@@ -640,7 +640,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                 timestamp=ctx.message.created_at)
             embed.set_author(
                 name="Are you sure you want to reset the player?",
-                icon_url=ctx.me.avatar_url)
+                icon_url=ctx.me.avatar.url)
             message = await ctx.send(embed=embed)
 
             guild = self.bot.get_guild(476812249693028354)
@@ -678,7 +678,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
             channel = ctx.me.voice.channel
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Player reset.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Player reset.", icon_url=ctx.me.avatar.url)
 
             await player.disconnect()
             await asyncio.sleep(1)
@@ -721,7 +721,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                     timestamp=datetime.datetime.utcnow())
                 embed.set_author(
                     name=f"Looping {player.last_track.title}.",
-                    icon_url=self.bot.user.avatar_url)
+                    icon_url=self.bot.user.avatar.url)
                 embed.add_field(name="Loops", value=player.last_track.loops)
 
                 await player.last_channel.send(embed=embed)
@@ -736,7 +736,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                 embed = discord.Embed(
                     color=EGG_COLOR,
                     timestamp=datetime.datetime.utcnow())
-                embed.set_author(name="Now playing:", icon_url=self.bot.user.avatar_url)
+                embed.set_author(name="Now playing:", icon_url=self.bot.user.avatar.url)
                 embed.add_field(name="Song", value=player.queue[0].title)
                 embed.add_field(name="Duration", value=player.queue[0].f_duration)
                 if player.queue[0].type == "standard":
@@ -784,7 +784,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                     embed = discord.Embed(
                         color=EGG_COLOR,
                         timestamp=datetime.datetime.utcnow())
-                    embed.set_author(name="Queue ended.", icon_url=self.bot.user.avatar_url)
+                    embed.set_author(name="Queue ended.", icon_url=self.bot.user.avatar.url)
 
                     await player.stop()
                     await player.last_channel.send(embed=embed)
@@ -812,7 +812,7 @@ class Music(commands.Cog):  # pylint: disable=too-many-public-methods
                     timestamp=datetime.datetime.utcnow())
                 embed.set_author(
                     name="Disconnecting for inactivity.",
-                    icon_url=channel.guild.me.avatar_url)
+                    icon_url=channel.guild.me.avatar.url)
                 await channel.send(embed=embed)
 
     # Helper methods

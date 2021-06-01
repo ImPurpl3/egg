@@ -68,7 +68,7 @@ class Levels(Cog):
 
         guild = member.guild
         name = str(member)
-        avatar_url = str(member.avatar_url_as(static_format="png", size=512))
+        avatar_url = str(member.avatar.replace(512, static_format="png"))
 
         if name != data["last_known_as"] or avatar_url != data["last_known_avatar_url"]:
             await self.bot.db.execute(
@@ -104,12 +104,12 @@ class Levels(Cog):
 
         await self.bot.db.execute(
             """INSERT OR IGNORE
-                   INTO levels (id, last_known_as, last_known_avatar_url)
+                   INTO levels (id, last_known_as, last_known.avatar.url)
                        VALUES (?, ?, ?)
             """,
             message.author.id,
             str(message.author),
-            str(message.author.avatar_url_as(static_format="png"))
+            str(message.author.avatar.replace(static_format="png"))
         )
         data = await self.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", message.author.id)
         level = data["level"]
@@ -143,10 +143,10 @@ class Levels(Cog):
                 str(after),
                 after.id
             )
-        if str(before.avatar_url) != str(after.avatar_url):
+        if str(before.avatar.url) != str(after.avatar.url):
             await self.bot.db.execute(
                 "UPDATE levels SET last_known_avatar_url = ? WHERE id = ?",
-                str(after.avatar_url_as(static_format="png", size=512)),
+                str(after.avatar.replace(static_format="png", size=512)),
                 after.id
             )
 
@@ -176,7 +176,7 @@ class Levels(Cog):
         name = row['last_known_as']
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Rank - {name} (Deleted)", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Rank - {name} (Deleted)", icon_url=ctx.me.avatar.url)
         embed.set_footer(
             text=f"They need to send {messages_to_levelup} to level up."
         )
@@ -229,11 +229,11 @@ class Levels(Cog):
         pronoun = "You" if member == ctx.author else "They"
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Rank - {member}", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Rank - {member}", icon_url=ctx.me.avatar.url)
         embed.set_footer(
             text=f"{pronoun} need to send {messages_to_levelup} to level up."
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar.url)
 
         embed.add_field(name="Rank", value=f"#{position} / {len(all_users)}", inline=False)
         embed.add_field(

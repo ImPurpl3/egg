@@ -103,7 +103,7 @@ class Krypt0s(commands.Cog):
     async def atbash(self, ctx: commands.Context, *, text: str):
         """Runs atbash cipher on the provided text."""
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Atbash cipher", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Atbash cipher", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=text)
         embed.add_field(name="Output", value=to_atbash(text))
 
@@ -113,13 +113,13 @@ class Krypt0s(commands.Cog):
     async def base32(self, ctx: commands.Context, *, text: str):
         """Decodes a Base32 string to text."""
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Base32 -> text", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Base32 -> text", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=text)
         try:
             embed.add_field(name="Output", value=b32decode(text).decode("utf-8"))
         except binascii.Error:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Invalid Base32 input.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Invalid Base32 input.", icon_url=ctx.me.avatar.url)
 
         await ctx.send(embed=embed)
 
@@ -127,13 +127,13 @@ class Krypt0s(commands.Cog):
     async def base64(self, ctx: commands.Context, *, text: str):
         """Decodes a Base64 string to text."""
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Base64 -> text", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Base64 -> text", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=text)
         try:
             embed.add_field(name="Output", value=b64decode(text).decode("utf-8"))
         except binascii.Error:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Invalid Base64 input.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Invalid Base64 input.", icon_url=ctx.me.avatar.url)
 
         await ctx.send(embed=embed)
 
@@ -141,7 +141,7 @@ class Krypt0s(commands.Cog):
     async def base64encode(self, ctx: commands.Context, *, text: str):
         """Encodes text to Base64."""
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Text -> Base64", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Text -> Base64", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=text)
         embed.add_field(
             name="Output",
@@ -157,7 +157,7 @@ class Krypt0s(commands.Cog):
         cleaned = " ".join(spaces_removed[i:i + 2] for i in range(0, len(spaces_removed), 2))
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name="Hexadecimal -> text", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Hexadecimal -> text", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=cleaned)
         try:
             embed.add_field(name="Output", value=bytearray.fromhex(hex_string).decode())
@@ -165,7 +165,7 @@ class Krypt0s(commands.Cog):
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
             embed.set_author(
                 name=f"Non-hexadecimal number found at position {int(e.args[0].split()[-1]) + 1}.",
-                icon_url=ctx.me.avatar_url
+                icon_url=ctx.me.avatar.url
             )
 
         await ctx.send(embed=embed)
@@ -180,7 +180,7 @@ class Krypt0s(commands.Cog):
                 color=EGG_COLOR,
                 timestamp=ctx.message.created_at
             )
-            embed.set_author(name="Missing image.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Missing image.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         if ctx.message.attachments:
@@ -189,7 +189,7 @@ class Krypt0s(commands.Cog):
 
             if imghdr.what(None, h=b) is None:
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="Invalid image format.", icon_url=ctx.me.avatar_url)
+                embed.set_author(name="Invalid image format.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
 
         elif url is not None:
@@ -198,7 +198,7 @@ class Krypt0s(commands.Cog):
                     embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
                     embed.set_author(
                         name="Supplied URL is not an image.",
-                        icon_url=ctx.me.avatar_url
+                        icon_url=ctx.me.avatar.url
                     )
                     return await ctx.send(embed=embed)
 
@@ -235,7 +235,7 @@ class Krypt0s(commands.Cog):
                                 for i, char in enumerate(rotated))
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"ROT-{x}", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"ROT-{x}", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=text)
         embed.add_field(name="Output", value=case_matched)
 
@@ -247,18 +247,18 @@ class Krypt0s(commands.Cog):
         data = original_data.replace(" ", "")
         if any(char not in ["0", "1"] for char in set(data)):
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Invalid binary input.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Invalid binary input.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Binary -> text", icon_url=ctx.me.avatar_url)
+        embed.set_author(name=f"Binary -> text", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Input", value=original_data)
 
         try:
             embed.add_field(name="Output", value=bin_to_text(data))
         except UnicodeDecodeError:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Invalid binary input.", icon_url=ctx.me.avatar_url)
+            embed.set_author(name="Invalid binary input.", icon_url=ctx.me.avatar.url)
             return await ctx.send(embed=embed)
 
         await ctx.send(embed=embed)
