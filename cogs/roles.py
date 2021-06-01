@@ -54,8 +54,8 @@ class Roles(Cog):
             await ctx.send_help(self.roles)
 
     @commands.has_permissions(administrator=True)
-    @roles.command(aliases=["new"])
-    async def add(self, ctx: Context, category_id: int,
+    @roles.command(name="add", aliases=["new"])
+    async def role_add(self, ctx: Context, category_id: int,
                   role: Union[Role, str], emoji: PartialEmoji, *, text: str):
         """Adds a role to the given category.
 
@@ -96,8 +96,8 @@ class Roles(Cog):
         await ctx.message.add_reaction(SUCCESS_EMOJI)
 
     @commands.has_permissions(administrator=True)
-    @roles.command(aliases=["remove"])
-    async def delete(self, ctx: Context, *, emoji: PartialEmoji):
+    @roles.command(name="delete", aliases=["remove"])
+    async def role_delete(self, ctx: Context, *, emoji: PartialEmoji):
         """Deletes a role from its respective category.
 
            The command's only parameter is the emoji of the role that's being deleted. 
@@ -126,8 +126,8 @@ class Roles(Cog):
         await ctx.send_help(self.category)
 
     @commands.has_permissions(administrator=True)
-    @category.command(aliases=["new", "create"])
-    async def add(self, ctx: Context, *, title: str):
+    @category.command(name="add", aliases=["new", "create"])
+    async def category_add(self, ctx: Context, *, title: str):
         """Adds a new category with the given title."""
         title = title.strip("*:")
         await self.channel.send(f"**{title}**:")
@@ -135,8 +135,8 @@ class Roles(Cog):
         await ctx.message.add_reaction(SUCCESS_EMOJI)
 
     @commands.has_permissions(administrator=True)
-    @category.command(aliases=["remove"])
-    async def delete(self, ctx: Context, category_id: int):
+    @category.command(name="delete", aliases=["remove"])
+    async def category_delete(self, ctx: Context, category_id: int):
         """Removes a category."""
         await self.bot.db.execute("DELETE FROM roles WHERE category_id = ?", category_id)
         self.role_dict = {
