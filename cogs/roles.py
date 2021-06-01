@@ -32,7 +32,6 @@ from .utils import utils
 SUCCESS_EMOJI = "<:yes:567019270467223572>"
 
 
-
 class Roles(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
