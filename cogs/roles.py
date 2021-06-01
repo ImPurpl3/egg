@@ -160,14 +160,14 @@ class Roles(Cog):
            egg roles category title 797953789826302002 Some cool new title
                - Note that the ** and : are added automatically.
         """
-        text = text.strip("*:")
+        text = text.strip(":*")
         message = await self.channel.fetch_message(category_id)
         lines = message.content.split("\n")
 
         if lines[0].startswith("**"):
-            lines[0] = f"**{text}**:"
+            lines[0] = f"**{text}:**"
         else:
-            lines.insert(0, f"**{text}**:")
+            lines.insert(0, f"**{text}:**")
 
         await message.edit(content="\n".join(lines))
 
