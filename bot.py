@@ -33,6 +33,7 @@ from discord.ext.commands import when_mentioned_or
 from bot_webserver import WebServer
 from cogs.utils import utils
 
+FIRST_READY = True
 
 bot = utils.Bot(command_prefix=when_mentioned_or("egg ", "Egg "), intents=Intents.all())
 bot.hook_db("data.db")
@@ -52,6 +53,12 @@ async def guild_only(ctx: commands.Context):
 @bot.event
 async def on_ready():
     """Fired each time bot's connection to Discord is opened and ready."""
+    global FIRST_READY
+    if not FIRST_READY:
+        FIRST_READY = False
+        print("Reconnected.")
+        return
+
     if not hasattr(bot, "web"):
         bot.web = WebServer(bot)
 
