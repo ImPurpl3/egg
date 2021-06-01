@@ -174,7 +174,7 @@ class Experimental(Cog):
                 ls_value = guaranteed
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=str(user), icon_url=ctx.me.avatar_url)
+        embed.set_author(name=str(user), icon_url=ctx.me.avatar.url)
 
         if user.status != discord.Status.offline:
             embed.add_field(name="Last seen", value=f"{ls_value} (currently online)")

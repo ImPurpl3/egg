@@ -80,7 +80,7 @@ class Events(Cog):
             content = message.content
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=datetime.utcnow())
-            embed.set_author(name="A message was deleted.", icon_url=message.author.avatar_url)
+            embed.set_author(name="A message was deleted.", icon_url=message.author.avatar.url)
 
             contents = []
 
@@ -112,7 +112,7 @@ class Events(Cog):
             channel = self.bot.get_channel(payload.channel_id)
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=datetime.utcnow())
-            embed.set_author(name="A message was deleted.", icon_url=self.bot.user.avatar_url)
+            embed.set_author(name="A message was deleted.", icon_url=self.bot.user.avatar.url)
 
             embed.add_field(name="Channel", value=channel.mention)
 
@@ -133,7 +133,7 @@ class Events(Cog):
                 return
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=datetime.utcnow())
-            embed.set_author(name="A message was edited.", icon_url=member.avatar_url)
+            embed.set_author(name="A message was edited.", icon_url=member.avatar.url)
 
             embed.add_field(name="After", value=payload.data["content"], inline=False)
 
@@ -162,7 +162,7 @@ class Events(Cog):
                 return
 
             embed = discord.Embed(color=EGG_COLOR, timestamp=datetime.utcnow())
-            embed.set_author(name="A message was edited.", icon_url=message.author.avatar_url)
+            embed.set_author(name="A message was edited.", icon_url=message.author.avatar.url)
 
             embed.add_field(name="Before", value=message.content, inline=False)
             embed.add_field(name="After", value=payload.data["content"], inline=False)

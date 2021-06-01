@@ -172,7 +172,7 @@ class MusicPlayer:
                 )
                 embed.set_author(
                     name="An error occurred while processing the track.",
-                    icon_url=self._guild.me.avatar_url
+                    icon_url=self._guild.me.avatar.url
                 )
 
                 return await self._channel.send(embed=embed)
@@ -195,7 +195,7 @@ class MusicPlayer:
             )
             embed.set_author(
                 name=f"Skipped {self.skipped.data['title']}",
-                icon_url=self.skipped.data["skipper"].avatar_url,
+                icon_url=self.skipped.data["skipper"].avatar.url,
                 url=source.data["webpage_url"]
             )
 
@@ -220,7 +220,7 @@ class MusicPlayer:
             )
             embed.set_author(
                 name=f"Now playing {source.title}",
-                icon_url=ctx.author.avatar_url,
+                icon_url=ctx.author.avatar.url,
                 url=source.data["webpage_url"]
             )
 

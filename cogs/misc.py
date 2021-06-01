@@ -215,7 +215,7 @@ class Misc(Cog):
         )
         embed.set_author(
             name="Urban Dictionary",
-            icon_url=ctx.me.avatar_url,
+            icon_url=ctx.me.avatar.url,
             url="https://www.urbandictionary.com/"
         )
         embed.set_footer(
@@ -425,7 +425,7 @@ class Misc(Cog):
 
         embed.set_author(
             name=f"{word.title()} info - {name}",
-            icon_url=ctx.me.avatar_url,
+            icon_url=ctx.me.avatar.url,
             url="https://www.thecolorapi.com"
         )
 
@@ -546,7 +546,7 @@ class Misc(Cog):
 
         embed.set_author(
             name=f"{word.title()} info - {data[color_format]['value']}",
-            icon_url=ctx.me.avatar_url,
+            icon_url=ctx.me.avatar.url,
             url="https://www.thecolorapi.com"
         )
 

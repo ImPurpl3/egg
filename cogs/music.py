@@ -148,7 +148,7 @@ class Music(Cog):
             embed = BaseEmbed(ctx)
             embed.set_author(
                 name=f"{verb} {data['title']}",
-                icon_url=ctx.author.avatar_url,
+                icon_url=ctx.author.avatar.url,
                 url=data["webpage_url"]
             )
 
