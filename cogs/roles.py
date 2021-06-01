@@ -131,7 +131,7 @@ class Roles(Cog):
     async def category_add(self, ctx: Context, *, title: str):
         """Adds a new category with the given title."""
         title = title.strip("*:")
-        await self.channel.send(f"**{title}**:")
+        await self.channel.send(f"**{title}:**")
 
         await ctx.message.add_reaction(SUCCESS_EMOJI)
 
