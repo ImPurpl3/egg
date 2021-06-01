@@ -183,7 +183,8 @@ class Roles(Cog):
             return
 
         emoji = payload.emoji
-        member = payload.member
+        guild = self.bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
 
         if str(emoji) not in self.role_dict:
             message = await self.channel.fetch_message(payload.message_id)
