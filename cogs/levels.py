@@ -104,7 +104,7 @@ class Levels(Cog):
 
         await self.bot.db.execute(
             """INSERT OR IGNORE
-                   INTO levels (id, last_known_as, last_known.avatar.url)
+                   INTO levels (id, last_known_as, last_known_avatar_url)
                        VALUES (?, ?, ?)
             """,
             message.author.id,
