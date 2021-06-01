@@ -78,7 +78,7 @@ class Roles(Cog):
         new_content = message.content + f"\n{emoji}: {text}"
 
         if isinstance(role, str):
-            await ctx.guild.create_role(name=role)
+            role = await ctx.guild.create_role(name=role)
 
         await self.bot.db.execute(
             "INSERT INTO roles (emoji, role_id, category_id, description) VALUES (?, ?, ?, ?)",
