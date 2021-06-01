@@ -32,6 +32,7 @@ from .utils import utils
 SUCCESS_EMOJI = "<:yes:567019270467223572>"
 
 
+
 class Roles(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
@@ -55,8 +56,8 @@ class Roles(Cog):
 
     @commands.has_permissions(administrator=True)
     @roles.command(name="add", aliases=["new"])
-    async def role_add(self, ctx: Context, category_id: int,
-                  role: Union[Role, str], emoji: PartialEmoji, *, text: str):
+    async def role_add(self, ctx: Context, category_id: int, role: Union[Role, str],
+                       emoji: Union[PartialEmoji, PartialEmoji.from_str], *, text: str):
         """Adds a role to the given category.
 
            <role> can be an existing role name, id or mention;
@@ -97,7 +98,8 @@ class Roles(Cog):
 
     @commands.has_permissions(administrator=True)
     @roles.command(name="delete", aliases=["remove"])
-    async def role_delete(self, ctx: Context, *, emoji: PartialEmoji):
+    async def role_delete(self, ctx: Context, *,
+                          emoji: Union[PartialEmoji, PartialEmoji.from_str]):
         """Deletes a role from its respective category.
 
            The command's only parameter is the emoji of the role that's being deleted. 
