@@ -44,7 +44,7 @@ class Roles(Cog):
     async def cache_roles(self):
         data = await self.bot.db.fetch("SELECT * FROM roles")
         for i in data:
-            self.role_dict["emoji"] = dict(i)
+            self.role_dict[i["emoji"]] = dict(i)
 
     @commands.group(invoke_without_command=True)
     async def roles(self, ctx: Context):
