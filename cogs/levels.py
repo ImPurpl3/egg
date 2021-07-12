@@ -211,7 +211,10 @@ class Levels(Cog):
             self.module = importlib.reload(self.module)
 
         avatar = await user.full.avatar.replace(size=256, format="png").read()
-        await self.bot.loop.run_in_executor(None, partial(self.module.generate, ctx, user, avatar))
+        func = partial(self.module.generate, ctx, user, avatar)
+
+        buffer = await self.bot.loop.run_in_executor(None, func)
+        await ctx.send(file=discord.File(buffer, filename="rank.png"))
 
 
 def setup(bot: utils.Bot):
