@@ -176,7 +176,7 @@ class RankedUser:
             except BadArgument:
                 raise BadArgument(f"User \"{argument}\" not found")
 
-        data = ctx.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", user.id)
+        data = await ctx.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", user.id)
         xp = data["xp"]
         level = data["level"]
         level_xp = data["level_xp"]
