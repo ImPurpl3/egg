@@ -205,7 +205,7 @@ class Levels(Cog):
         """Development command for rank cards."""
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
-        if self.module is not None:
+        if self.module is None:
             self.module = importlib.import_module("utils.generate")
         else:
             self.module = importlib.reload(self.module)
