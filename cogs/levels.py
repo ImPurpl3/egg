@@ -178,7 +178,7 @@ class Levels(Cog):
         embed.set_footer(
             text=f"{pronoun} need to send {messages_to_levelup} to level up."
         )
-        embed.set_thumbnail(url=user.original.avatar.url)
+        embed.set_thumbnail(url=user.full.avatar.url)
 
         embed.add_field(name="Rank", value=f"#{user.position} / {len(all_users)}", inline=False)
         embed.add_field(

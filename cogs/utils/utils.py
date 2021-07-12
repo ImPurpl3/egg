@@ -138,11 +138,14 @@ class GuaranteedUser(commands.Converter):
 @dataclass
 class RankedUser:
     """Wrapper for a user's rank information"""
-    original: User
+    full: User
     xp: int
     level: int
     level_xp: int 
     position: int
+
+    def __str__(self):
+        return str(self.full)
 
     @classmethod
     async def convert(cls, ctx: commands.Context, argument: str) -> "RankedUser":
