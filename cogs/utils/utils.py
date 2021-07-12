@@ -182,7 +182,7 @@ class RankedUser:
         level_xp = data["level_xp"]
         position = ids.index(user.id) + 1
 
-        return cls(User, xp, level, level_xp, position)
+        return cls(user, xp, level, level_xp, position)
 
 
 def slicer(item: Iterable, per: int) -> list:
