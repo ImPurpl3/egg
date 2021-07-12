@@ -144,8 +144,8 @@ class RankedUser:
     level_xp: int 
     position: int
 
-    @classmethod
-    async def convert(cls, ctx: commands.Context, argument: str) -> Union[Member, User, Row]:
+    @staticmethod
+    async def convert(ctx: commands.Context, argument: str) -> Union[Member, User, Row]:
         """Handles the conversion."""
         argument = argument.strip()
         users = await ctx.bot.db.fetchall("SELECT * FROM levels ORDER BY xp DESC")
@@ -182,7 +182,7 @@ class RankedUser:
         level_xp = data["level_xp"]
         position = ids.index(user.id) + 1
 
-        return cls(User, xp, level, level_xp, position)
+        return RankedUser(User, xp, level, level_xp, position)
 
 
 def slicer(item: Iterable, per: int) -> list:
