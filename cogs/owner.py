@@ -99,9 +99,9 @@ class Owner(Cog):
 
     @commands.command(aliases=["logout"])
     async def shutdown(self, ctx: Context):
-        """Logs the bot out and does some cleanup."""
+        """Logs the bot out."""
         await ctx.message.add_reaction("\N{FLUSHED FACE}")
-        await self.bot.shutdown()
+        await self.bot.close()
 
 
 def setup(bot: utils.Bot):
