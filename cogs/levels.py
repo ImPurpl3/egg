@@ -203,14 +203,12 @@ class Levels(Cog):
     @commands.is_owner()
     async def rankcard(self, ctx: Context, user: utils.RankedUser = None):
         """Development command for rank cards."""
-        user = user or ctx.author
+        user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
         if self.module is not None:
-            self.module = importlib.import_module("generate")
+            self.module = importlib.import_module("utils.generate")
         else:
             self.module = importlib.reload(self.module)
-
-
 
         await self.bot.loop.run_in_executor(None, partial(self.module.generate, ctx, user))
 
