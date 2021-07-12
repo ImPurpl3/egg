@@ -211,7 +211,8 @@ class Levels(Cog):
             self.module = importlib.reload(self.module)
 
         avatar = await user.full.avatar.replace(size=256, format="png").read()
-        func = partial(self.module.generate, ctx, user, avatar)
+        users = await self.bot.db.fetch("SELECT * FROM levels")
+        func = partial(self.module.generate, ctx, user, avatar, users)
 
         buffer = await self.bot.loop.run_in_executor(None, func)
         await ctx.send(file=discord.File(buffer, filename="rank.png"))
