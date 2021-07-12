@@ -210,7 +210,8 @@ class Levels(Cog):
         else:
             self.module = importlib.reload(self.module)
 
-        await self.bot.loop.run_in_executor(None, partial(self.module.generate, ctx, user))
+        avatar = await user.full.avatar.replace(size=256, format="png").read()
+        await self.bot.loop.run_in_executor(None, partial(self.module.generate, ctx, user, avatar))
 
 
 def setup(bot: utils.Bot):
