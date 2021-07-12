@@ -21,17 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import json
+import importlib
 import math
 import random
-from base64 import decodebytes
-from io import BytesIO
+from functools import partial
 from sqlite3 import Row
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from PIL import Image, ImageDraw, ImageFont
 
 from .utils import utils
 
@@ -51,6 +49,8 @@ class Levels(Cog):
     def __init__(self, bot: utils.Bot):
         self.bot = bot
         self.levelup_channel = self.bot.get_channel(668535454580211768)
+
+        self.module = None
 
     @staticmethod
     def get_levelup_xp(level: int):
@@ -150,73 +150,18 @@ class Levels(Cog):
                 after.id
             )
 
-    async def send_rank_data_from_row(self, ctx: Context, row: Row):
-        """Sends a user's rank information from a database row.
-           Used when a deleted user is returned by utils.RankedUser."""
-        all_users = await self.bot.db.fetchall("SELECT * FROM levels ORDER BY xp DESC")
-
-        position = [row["id"] for row in all_users].index(row["id"]) + 1
-        level = row["level"]
-        level_xp = row["level_xp"]
-        levelup_xp = self.get_levelup_xp(level)
-        total_xp = row["xp"]
-
-        level_progress = math.floor(level_xp / levelup_xp * 100)
-        min_messages = math.ceil((levelup_xp - level_xp) / 25)
-        max_messages = math.ceil((levelup_xp - level_xp) / 15)
-
-        if min_messages == max_messages:
-            if min_messages == 1:
-                messages_to_levelup = "1 message"
-            else:
-                messages_to_levelup = f"{min_messages} messages"
-        else:
-            messages_to_levelup = f"{min_messages} to {max_messages} messages"
-
-        name = row['last_known_as']
-
-        embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Rank - {name} (Deleted)", icon_url=ctx.me.avatar.url)
-        embed.set_footer(
-            text=f"They need to send {messages_to_levelup} to level up."
-        )
-        embed.set_thumbnail(url=row["last_known_avatar_url"])
-
-        embed.add_field(name="Rank", value=f"#{position} / {len(all_users)}", inline=False)
-        embed.add_field(
-            name="Level",
-            value=f"{level}\n(Level progress: {level_progress}%)",
-            inline=False
-        )
-        embed.add_field(
-            name="XP",
-            value=f"{level_xp} / {levelup_xp} XP\n(Total: {total_xp} XP)",
-            inline=False
-        )
-
-        await ctx.send(embed=embed)
-
     @commands.command(aliases=["level"])
-    async def rank(self, ctx: Context, *, member: utils.RankedUser = None):
-        """Shows a member's rank information."""
-        member = member or ctx.author
+    async def rank(self, ctx: Context, *, user: utils.RankedUser = None):
+        """Shows a user's rank information."""
+        user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
-        if isinstance(member, Row):
-            return await self.send_rank_data_from_row(ctx, member)
-
-        await self.bot.db.execute("INSERT OR IGNORE INTO levels (id) VALUES (?)", member.id)
         all_users = await self.bot.db.fetchall("SELECT * FROM levels ORDER BY xp DESC")
-        data = discord.utils.find(lambda row: row["id"] == member.id, all_users)
 
-        position = [row["id"] for row in all_users].index(member.id) + 1
-        level = data["level"]
-        level_xp = data["level_xp"]
-        levelup_xp = self.get_levelup_xp(level)
-        total_xp = data["xp"]
+        levelup_xp = self.get_levelup_xp(user.level)
+        level_progress = math.floor(user.level_xp / levelup_xp * 100)
 
-        level_progress = math.floor(level_xp / levelup_xp * 100)
-        min_messages = math.ceil((levelup_xp - level_xp) / 25)
-        max_messages = math.ceil((levelup_xp - level_xp) / 15)
+        min_messages = math.ceil((levelup_xp - user.level_xp) / 25)
+        max_messages = math.ceil((levelup_xp - user.level_xp) / 15)
 
         if min_messages == max_messages:
             if min_messages == 1:
@@ -226,24 +171,24 @@ class Levels(Cog):
         else:
             messages_to_levelup = f"{min_messages} to {max_messages} messages"
 
-        pronoun = "You" if member == ctx.author else "They"
+        pronoun = "You" if user == ctx.author else "They"
 
         embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-        embed.set_author(name=f"Rank - {member}", icon_url=ctx.me.avatar.url)
+        embed.set_author(name=f"Rank - {user}", icon_url=ctx.me.avatar.url)
         embed.set_footer(
             text=f"{pronoun} need to send {messages_to_levelup} to level up."
         )
-        embed.set_thumbnail(url=member.avatar.url)
+        embed.set_thumbnail(url=user.original.avatar.url)
 
-        embed.add_field(name="Rank", value=f"#{position} / {len(all_users)}", inline=False)
+        embed.add_field(name="Rank", value=f"#{user.position} / {len(all_users)}", inline=False)
         embed.add_field(
             name="Level",
-            value=f"{level}\n(Level progress: {level_progress}%)",
+            value=f"{user.level}\n(Level progress: {level_progress}%)",
             inline=False
         )
         embed.add_field(
             name="XP",
-            value=f"{level_xp} / {levelup_xp} XP\n(Total: {total_xp} XP)",
+            value=f"{user.level_xp} / {levelup_xp} XP\n(Total: {user.xp} XP)",
             inline=False
         )
 
@@ -253,6 +198,21 @@ class Levels(Cog):
     async def levels(self, ctx: Context):
         """Sends a link to the leaderboard."""
         await ctx.send("https://leaderboard.veeps.moe")
+
+    @commands.command()
+    @commands.is_owner()
+    async def rankcard(self, ctx: Context, user: utils.RankedUser = None):
+        """Development command for rank cards."""
+        user = user or ctx.author
+
+        if self.module is not None:
+            self.module = importlib.import_module("generate")
+        else:
+            self.module = importlib.reload(self.module)
+
+
+
+        await self.bot.loop.run_in_executor(None, partial(self.module.generate, ctx, user))
 
 
 def setup(bot: utils.Bot):

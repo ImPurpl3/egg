@@ -5,13 +5,14 @@ import os
 import re
 import traceback
 from asyncio import TimeoutError
+from dataclasses import dataclass
 from datetime import datetime
 from sqlite3 import Row
 from typing import Any, List, Iterable, Sequence, Tuple, Type, Union
 
 import parsedatetime as pdt
 from aiohttp import ClientSession
-from discord import Embed, Member, NotFound, Reaction, User
+from discord import Asset, Embed, Member, NotFound, Reaction, User
 from discord.ext import commands
 from discord.ext.commands import BadArgument, BucketType, Context, Converter, CooldownMapping
 from discord.utils import find
@@ -94,7 +95,7 @@ class Bot(commands.Bot):
         await self.logout()
 
 
-class ExtensionConverter(Converter):  # pylint: disable=too-few-public-methods
+class ExtensionConverter(Converter):
     """Converts an argument to a valid extension name."""
     async def convert(self, ctx: Context, argument: str):
         """Handles the conversion."""
@@ -120,7 +121,6 @@ class ExtensionConverter(Converter):  # pylint: disable=too-few-public-methods
 
 class GuaranteedUser(commands.Converter):
     """A converter for getting a User or Member by any means possible."""
-    # pylint: disable=too-few-public-methods
     async def convert(self, ctx: commands.Context, argument: str) -> Union[Member, User]:
         """Handles the conversion."""
         try:
@@ -135,32 +135,27 @@ class GuaranteedUser(commands.Converter):
                     raise BadArgument(f"Member or User \"{argument}\" was not found.")
         return user
 
+@dataclass
+class RankedUser:
+    """Wrapper for a user's rank information"""
+    original: User
+    xp: int
+    level: int
+    level_xp: int 
+    position: int
 
-class RankedUser(commands.Converter):  # pylint: disable=too-few-public-methods
-    """Gets a Member using MemberConverter or a Member or User by leaderboard index.
-       If an index is given and the user does not exist on Discord, returns the user's Row."""
-    async def convert(self, ctx: commands.Context, argument: str) -> Union[Member, User, Row]:  # pylint: disable=too-many-branches,too-many-return-statements
+    @classmethod
+    async def convert(cls, ctx: commands.Context, argument: str) -> Union[Member, User, Row]:
         """Handles the conversion."""
+        argument = argument.strip()
+        users = await ctx.bot.db.fetchall("SELECT * FROM levels ORDER BY xp DESC")
+        ids = [row["id"] for row in users]
+
         try:
-            return await commands.MemberConverter().convert(ctx, argument)
+            user = await commands.UserConverter().convert(ctx, argument)
         except BadArgument:
             if not re.fullmatch(r"(?:\#?\s*\d+|first|last)", argument, flags=re.IGNORECASE):
-                raise BadArgument(f"Member \"{argument}\" not found")
-
-            users = await ctx.bot.db.fetchall("SELECT * FROM levels ORDER BY xp DESC")
-            ids = [row["id"] for row in users]
-
-            try:
-                if (user_id := int(argument.lstrip())) in ids:  # pylint: disable=superfluous-parens
-                    user = await ctx.bot.fetch_user(user_id)
-
-                    if re.fullmatch(r"Deleted User [0-9a-f]+", user.name, flags=re.IGNORECASE):
-                        return find(lambda row: row["id"] == user_id, users)
-
-                    return user
-
-            except ValueError:
-                pass
+                raise BadArgument(f"User \"{argument}\" not found")
 
             if argument.lower() == "first":
                 index = 0
@@ -176,19 +171,18 @@ class RankedUser(commands.Converter):  # pylint: disable=too-few-public-methods
 
             user_id = ids[index]
 
-            if member := ctx.guild.get_member(user_id):
-                return member
-
             try:
-                user = await ctx.bot.fetch_user(user_id)
+                user = await commands.UserConverter().convert(ctx, str(user_id))
+            except BadArgument:
+                raise BadArgument(f"User \"{argument}\" not found")
 
-                if re.fullmatch(r"Deleted User [0-9a-f]+", user.name, flags=re.IGNORECASE):
-                    return find(lambda row: row["id"] == user_id, users)
+        data = ctx.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", user.id)
+        xp = data["xp"]
+        level = data["level"]
+        level_xp = data["level_xp"]
+        position = ids.index(user.id) + 1
 
-                return user
-
-            except NotFound:
-                return find(lambda row: row["id"] == user_id, users)
+        return cls(User, xp, level, level_xp, position)
 
 
 def slicer(item: Iterable, per: int) -> list:
@@ -201,7 +195,7 @@ def slicer(item: Iterable, per: int) -> list:
     return sliced
 
 
-def get_luminance(r, g, b, a=1) -> float:  # pylint: disable=invalid-name
+def get_luminance(r, g, b, a=1) -> float:
     """Gets luminance from an RGB value.
        Source: https://github.com/CuteFwan/Koishi"""
     return (0.299 * r + 0.587 * g + 0.114 * b) * a
@@ -210,9 +204,8 @@ def get_luminance(r, g, b, a=1) -> float:  # pylint: disable=invalid-name
 def gifmap(im2, im1) -> io.BytesIO:
     """Rearranges image 1's pixels to look like image 2.
        Credit: https://github.com/CuteFwan/Koishi"""
-    # pylint: disable=invalid-name, too-many-locals
-    im1 = Image.open(im1).resize((256, 256), resample=Image.BICUBIC)
-    im2 = Image.open(im2).resize((256, 256), resample=Image.BICUBIC)
+    im1 = Image.open(im1).resize((256, 256), resample=Image.LANCZOS)
+    im2 = Image.open(im2).resize((256, 256), resample=Image.LANCZOS)
 
     im1data = im1.load()
     im1data = [[(x, y), im1data[x, y]] for x in range(256) for y in range(256)]
