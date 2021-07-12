@@ -206,7 +206,7 @@ class Levels(Cog):
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
         if self.module is None:
-            self.module = importlib.import_module(".utils.generate")
+            self.module = importlib.import_module("cogs.utils.generate")
         else:
             self.module = importlib.reload(self.module)
 
