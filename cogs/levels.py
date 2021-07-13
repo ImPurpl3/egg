@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import random
-from functools import partialmethod
+from functools import partial
 from io import BytesIO
 from math import ceil, floor
 from sqlite3 import Row
@@ -287,7 +287,7 @@ class Levels(Cog):
 
         avatar = await user.full.avatar.replace(size=256, format="png").read()
         users = await self.bot.db.fetch("SELECT * FROM levels")
-        func = partialmethod(self.rank_card, user, avatar, users)
+        func = partial(self.rank_card, self, user, avatar, users)
 
         buffer = await self.bot.loop.run_in_executor(None, func)
         await ctx.send(file=discord.File(buffer, filename="rank.png"))
