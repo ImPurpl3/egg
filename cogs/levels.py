@@ -142,7 +142,7 @@ class Levels(Cog):
         # Rank and level
         t_draw.multiline_text(
             (297, 115),
-            f" Rank: #{user.position}123/{len(users)}\nLevel: {level}",
+            f" Rank: #{user.position}/{len(users)}\nLevel: {level}",
             WHITE,
             col_font,
             "la",
