@@ -111,8 +111,8 @@ class Levels(Cog):
         size = 60
         n_font = ImageFont.truetype(BOLD_FONT, size)
 
-        # size defaults to 60, decreasing until text is less than 450 pixels wide and at least 23
-        while (r_bound := n_font.getbbox(user.full.name, anchor="ls")[2]) > 450 and size >= 23:
+        # size defaults to 60, decreasing until text is less than 440 pixels wide and at least 23
+        while (r_bound := n_font.getbbox(user.full.name, anchor="ls")[2]) > 440 and size >= 23:
             size -= 1
             n_font = ImageFont.truetype(BOLD_FONT, size)
 
