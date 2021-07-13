@@ -282,7 +282,7 @@ class Levels(Cog):
 
     @commands.command()
     async def rank(self, ctx: Context, *, user: utils.RankedUser = None):
-        """Development command for rank cards."""
+        """Shows a user's rank information."""
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
         avatar = await user.full.avatar.replace(size=256, format="png").read()
