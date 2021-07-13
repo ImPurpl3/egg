@@ -281,7 +281,7 @@ class Levels(Cog):
             )
 
     @commands.command()
-    async def rank(self, ctx: Context, user: utils.RankedUser = None):
+    async def rank(self, ctx: Context, *, user: utils.RankedUser = None):
         """Development command for rank cards."""
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
