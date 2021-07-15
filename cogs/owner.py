@@ -21,7 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import json
 import os
+from io import StringIO
+from secrets import token_hex
 from typing import Type
 
 import discord
@@ -31,6 +34,23 @@ from discord.ext.commands import CheckFailure, Cog, CommandError, Context, NotOw
 from .utils import utils
 
 EGG_COLOR = 0xF6DECF
+SXCU_TEMPLATE = """
+{
+  "Version": "13.5.0",
+  "DestinationType": "ImageUploader, TextUploader, FileUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://cdn.veeps.moe/upload",
+  "Parameters": {
+    "auth": "{token}"
+  },
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "filename": "$filename$"
+  },
+  "FileFormName": "data",
+  "URL": "$json:url$.$json:ext$"
+}
+"""
 
 
 class Owner(Cog):
@@ -102,6 +122,59 @@ class Owner(Cog):
         """Logs the bot out."""
         await ctx.message.add_reaction("\N{FLUSHED FACE}")
         await self.bot.close()
+
+    @commands.group(invoke_without_command=True)
+    async def cdn(self, ctx: Context):
+        """Command group for managing https://cdn.veeps.moe auth tokens."""
+
+    @cdn.command()
+    async def grant(self, ctx: Context, *, name: str):
+        """Creates a token for the given name."""
+        name = name.replace(" ", "-")
+
+        cdn_path = "~/sharex-server"
+        with open(f"{cdn_path}/data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if name in data["auth"].values():
+            return await ctx.send(f"A token for `{name}` already exists.")
+
+        token = token_hex(32)
+        data["auth"][token] = name
+
+        with open(f"{cdn_path}/data.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+        os.mkdir(f"{cdn_path}/files/{name}")
+
+        buffer = StringIO()
+        buffer.write(SXCU_TEMPLATE.format(token=token))
+        buffer.seek(0)
+
+        await ctx.author.send(file=discord.File(buffer, f"cdn.veeps.moe - {name}"))
+        await ctx.send(f"Successfully created a token for `{name}`.")
+
+    @cdn.command()
+    async def revoke(self, ctx: Context, *, name: str): 
+        """Deletes a token owned by the given name."""
+        name = name.replace(" ", "-")
+
+        cdn_path = "~/sharex-server"
+        with open(f"{cdn_path}/data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+            swapped = {v: k for k, v in data.items()}
+
+        if name not in data["auth"].values():
+            return await ctx.send(f"A token for `{name}` does not exist.")
+
+        data.pop(swapped[name])
+
+        with open(f"{cdn_path}/data.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+        os.rmdir(f"{cdn_path}/files/{name}")
+
+        await ctx.send(f"Successfully deleted `{name}`'s token.")
 
 
 def setup(bot: utils.Bot):
