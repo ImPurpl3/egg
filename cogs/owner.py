@@ -132,7 +132,7 @@ class Owner(Cog):
         """Creates a token for the given name."""
         name = name.replace(" ", "-")
 
-        cdn_path = "~/sharex-server"
+        cdn_path = os.getenv("CDN_PATH")
         with open(f"{cdn_path}/data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -159,7 +159,7 @@ class Owner(Cog):
         """Deletes a token owned by the given name."""
         name = name.replace(" ", "-")
 
-        cdn_path = "~/sharex-server"
+        cdn_path = os.getenv("CDN_PATH")
         with open(f"{cdn_path}/data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             swapped = {v: k for k, v in data.items()}
