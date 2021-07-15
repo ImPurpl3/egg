@@ -151,7 +151,7 @@ class Owner(Cog):
         buffer.write(SXCU_TEMPLATE.format(token=token))
         buffer.seek(0)
 
-        await ctx.author.send(file=discord.File(buffer, f"cdn.veeps.moe - {name}"))
+        await ctx.author.send(file=discord.File(buffer, f"cdn.veeps.moe - {name}.sxcu"))
         await ctx.send(f"Successfully created a token for `{name}`.")
 
     @cdn.command()
