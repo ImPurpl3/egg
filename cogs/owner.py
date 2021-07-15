@@ -35,21 +35,21 @@ from .utils import utils
 
 EGG_COLOR = 0xF6DECF
 SXCU_TEMPLATE = """
-{
+{{
   "Version": "13.5.0",
   "DestinationType": "ImageUploader, TextUploader, FileUploader",
   "RequestMethod": "POST",
   "RequestURL": "https://cdn.veeps.moe/upload",
-  "Parameters": {
+  "Parameters": {{
     "auth": "{token}"
-  },
+  }},
   "Body": "MultipartFormData",
-  "Arguments": {
+  "Arguments": {{
     "filename": "$filename$"
-  },
+  }},
   "FileFormName": "data",
   "URL": "$json:url$.$json:ext$"
-}
+}}
 """
 
 
