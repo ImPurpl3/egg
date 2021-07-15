@@ -162,12 +162,12 @@ class Owner(Cog):
         cdn_path = os.getenv("CDN_PATH")
         with open(f"{cdn_path}/data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
-            swapped = {v: k for k, v in data.items()}
+            swapped = {v: k for k, v in data["auth"].items()}
 
         if name not in data["auth"].values():
             return await ctx.send(f"A token for `{name}` does not exist.")
 
-        data.pop(swapped[name])
+        data["auth"].pop(swapped[name])
 
         with open(f"{cdn_path}/data.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
