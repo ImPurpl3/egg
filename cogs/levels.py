@@ -64,7 +64,7 @@ class Levels(Cog):
     def get_levelup_xp(level: int):
         return 5 * level**2 + 50*level + 100
 
-    def rank_card(self, user: utils.RankedUser, avatar_bytes: bytes, users: list[Row]):
+    def generate_card(self, user: utils.RankedUser, avatar_bytes: bytes, users: list[Row]):
         im = Image.open("./assets/images/DefaultBg.png").convert("RGBA")
         bar = Image.open("./assets/images/BarPic.png").convert("RGBA")
         out = Image.open("./assets/images/outline.png").convert("RGBA")
@@ -260,9 +260,17 @@ class Levels(Cog):
                     f"*level reward: {role.name}*"
                 )
             else:
-                await self.levelup_channel.send(f"gg {message.author.mention}, you leveled up to level {level}")
+                await self.levelup_channel.send(
+                    f"gg {message.author.mention}, you leveled up to level {level}"
+                )
 
-        await self.bot.db.execute("UPDATE levels SET level = ?, xp = ?, level_xp = ? WHERE id = ?", level, xp, level_xp, message.author.id)
+        await self.bot.db.execute(
+            "UPDATE levels SET level = ?, xp = ?, level_xp = ? WHERE id = ?",
+            level,
+            xp,
+            level_xp,
+            message.author.id
+        )
 
     @Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
@@ -287,7 +295,7 @@ class Levels(Cog):
 
         avatar = await user.full.avatar.replace(size=256, format="png").read()
         users = await self.bot.db.fetch("SELECT * FROM levels")
-        func = partial(self.rank_card, user, avatar, users)
+        func = partial(self.generate_card, user, avatar, users)
 
         buffer = await self.bot.loop.run_in_executor(None, func)
         await ctx.send(file=discord.File(buffer, filename="rank.png"))

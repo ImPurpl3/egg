@@ -467,7 +467,7 @@ class Misc(Cog):
         Accepted formats:
         -  #AABBCC / #ABC / AABBCC / ABC (hex)
         -  246, 222, 207 / 246 222 207 / 246,222,207 / rgb(246, 222, 207) (RGB)
-        -  0, 10, 16, 4 / 0 10 16 4 / 0,10,16,4 / cmyk(0, 10, 16, 4) (CMYK, % after values is supported)
+        -  0, 10, 16, 4 / 0 10 16 4 / 0,10,16,4 / cmyk(0, 10, 16, 4) (CMYK)
 
         You can also provide a color name:
         -  egg color blue
@@ -606,7 +606,10 @@ class Misc(Cog):
     @commands.has_any_role("@moderator", "@admin", "@owner")
     async def ban(self, ctx: Context, *, user: utils.GuaranteedUser):
         if isinstance(user, discord.Member):
-            if any(i in [r.id for r in user.roles] for i in (527939593128116232, 701823598360264774, 527939296829898753)):
+            if any(
+                i in [r.id for r in user.roles]
+                for i in (527939593128116232, 701823598360264774, 527939296829898753)
+            ):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
                 embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
@@ -628,7 +631,10 @@ class Misc(Cog):
     @commands.has_any_role("@moderator", "@admin", "@owner")
     async def save(self, ctx: Context, *, user: utils.GuaranteedUser):
         if isinstance(user, discord.Member):
-            if any(i in [r.id for r in user.roles] for i in (527939593128116232, 701823598360264774, 527939296829898753)):
+            if any(
+                i in [r.id for r in user.roles]
+                for i in (527939593128116232, 701823598360264774, 527939296829898753)
+            ):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
                 embed.set_author(name="I can't ban this member.", icon_url=ctx.me.avatar.url)
                 return await ctx.send(embed=embed)
@@ -676,10 +682,17 @@ class Misc(Cog):
         embed.add_field(name="Python version", value=py_version, inline=False)
 
         embed.add_field(name="discord.py version", value=discord.__version__, inline=False)
-        embed.add_field(name="Source", value=f"[Click here]({REPO} \"bad code alert\")", inline=False)
+        embed.add_field(
+            name="Source",
+            value=f"[Click here]({REPO} \"bad code alert\")",
+            inline=False
+        )
 
         vp = self.bot.get_user(self.bot.owner_id)
-        embed.set_footer(text=f"made for this server with cum, tears and love by {str(vp)}", icon_url=vp.avatar.url)
+        embed.set_footer(
+            text=f"made for this server with cum, tears and love by {str(vp)}",
+            icon_url=vp.avatar.url
+        )
 
         await ctx.send(embed=embed)
 
