@@ -126,14 +126,15 @@ class GuaranteedUser(commands.Converter):
         try:
             user = await commands.MemberConverter().convert(ctx, argument)
         except BadArgument:
+            # case insensitive display name lookup
+            if (user := find(lambda m: m.display_name.lower() == argument, ctx.guild.members)):
+                return user
             try:
                 user = await commands.UserConverter().convert(ctx, argument)
             except BadArgument:
-                try:
-                    user = await ctx.bot.fetch_user(argument)
-                except Exception:
-                    raise BadArgument(f"Member or User \"{argument}\" was not found.")
+                raise BadArgument(f"Member or User \"{argument}\" was not found.")
         return user
+
 
 @dataclass
 class RankedUser:
@@ -155,7 +156,7 @@ class RankedUser:
         ids = [row["id"] for row in users]
 
         try:
-            user = await commands.UserConverter().convert(ctx, argument)
+            user = await GuaranteedUser().convert(ctx, argument)
         except BadArgument:
             if not re.fullmatch(r"(?:\#?\s*\d+|first|last)", argument, flags=re.IGNORECASE):
                 raise BadArgument(f"User \"{argument}\" not found")
