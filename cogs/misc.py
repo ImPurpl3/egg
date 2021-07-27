@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import asyncio
+from functools import partial
 import html
 import imghdr
 import json
@@ -42,6 +43,7 @@ from discord.ext import commands
 from discord.ext.commands import BadArgument, Cog, CommandError, Context
 from discord.utils import escape_markdown, sleep_until
 from PIL import Image, ImageDraw, ImageFont
+from youtube_dl import YoutubeDL
 
 from .utils import utils
 
@@ -805,6 +807,30 @@ class Misc(Cog):
 
         else:
             await utils.display_error(ctx, error)
+
+    @staticmethod
+    def get_video_data(url):
+        with YoutubeDL() as youtube_dl:
+            data = youtube_dl.extract_info(url, download=False)
+            title = f"{data['title']}_{data['id']}.mp4"
+
+            formats = list(filter(
+                lambda i: i["filesize"] <= 8000000 and i["ext"] == "mp4"
+                          and i["acodec"] is not None,
+                data["formats"]
+            ))
+            best = max(formats, key=lambda i: i["height"])
+            return title, best["url"]
+
+    @commands.command()
+    async def ytdl(self, ctx: Context, *, url: str):
+        func = partial(self.get_video_data, url)
+        title, url = await self.bot.loop.run_in_executor(None, func)
+
+        async with self.bot.session.get(url) as resp:
+            file = discord.File(BytesIO(await resp.read()), title)
+
+        await ctx.send(file)
 
 
 def setup(bot: utils.Bot):
