@@ -849,6 +849,7 @@ class Misc(Cog):
                     description="This is most likely due to the video being over 8 MB in all qualities."
                 )
                 embed.set_author(name="No supported format found.", icon_url=ctx.me.avatar)
+                return await ctx.send(embed=embed)
 
             await ctx.reply(file=discord.File(filename), mention_author=True)
         
