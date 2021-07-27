@@ -42,7 +42,7 @@ import discord
 import parsedatetime as pdt
 from discord.ext import commands
 from discord.ext.commands import BadArgument, Cog, CommandError, Context
-from discord.utils import escape_markdown, sleep_until
+from discord.utils import escape_markdown, find, get, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 from youtube_dl import YoutubeDL
 
@@ -811,8 +811,21 @@ class Misc(Cog):
 
     @staticmethod
     def download_video(url: str):
-        with YoutubeDL({"format": "best[filesize<=8M, ext=mp4]"}) as ytdl:
-            filename = ytdl.prepare_filename(ytdl.extract_info(url))
+        with YoutubeDL() as ytdl:
+            data = ytdl.extract_info(url, download=False)
+            filename = ytdl.prepare_filename(data)
+
+            audio = find(lambda i: i["ext"] == "m4a", data["formats"])
+            video_formats = list(filter(
+                lambda i: i["ext"] == "mp4" and i["filesize"] is not None and i["acodec"] is None
+                          and i["filesize"] + audio["filesize"] <= 8000000
+            ))
+
+            video = max(video_formats, key=lambda i: i["height"])
+
+            ytdl.params["format"] = f"{audio['format_id']}+{video['format_id']}"
+
+            ytdl.extract_info(url)
 
         return filename
 
