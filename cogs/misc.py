@@ -26,6 +26,7 @@ from functools import partial
 import html
 import imghdr
 import json
+import os
 import random
 import re
 import sys
@@ -809,28 +810,19 @@ class Misc(Cog):
             await utils.display_error(ctx, error)
 
     @staticmethod
-    def get_video_data(url):
-        with YoutubeDL() as youtube_dl:
-            data = youtube_dl.extract_info(url, download=False)
-            title = f"{data['title']}_{data['id']}.mp4"
+    def download_video(url: str):
+        with YoutubeDL({"format": "best[filesize<=8M, ext=mp4]"}) as ytdl:
+            filename = ytdl.prepare_filename(ytdl.extract_info(url))
 
-            formats = list(filter(
-                lambda i: i["filesize"] <= 8000000 and i["ext"] == "mp4"
-                          and i["acodec"] is not None,
-                data["formats"]
-            ))
-            best = max(formats, key=lambda i: i["height"])
-            return title, best["url"]
+        return filename
 
     @commands.command()
     async def ytdl(self, ctx: Context, *, url: str):
-        func = partial(self.get_video_data, url)
-        title, url = await self.bot.loop.run_in_executor(None, func)
+        func = partial(self.download_video, url.strip("<>"))
+        filename = await self.bot.loop.run_in_executor(None, func)
 
-        async with self.bot.session.get(url) as resp:
-            file = discord.File(BytesIO(await resp.read()), title)
-
-        await ctx.send(file)
+        await ctx.send(file=discord.File(filename))
+        os.remove(filename)
 
 
 def setup(bot: utils.Bot):
