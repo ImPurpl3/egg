@@ -818,7 +818,8 @@ class Misc(Cog):
             audio = find(lambda i: i["ext"] == "m4a", data["formats"])
             video_formats = list(filter(
                 lambda i: i["ext"] == "mp4" and i["filesize"] is not None and i["acodec"] is None
-                          and i["filesize"] + audio["filesize"] <= 8000000
+                          and i["filesize"] + audio["filesize"] <= 8000000,
+                data["formats"]
             ))
 
             video = max(video_formats, key=lambda i: i["height"])
