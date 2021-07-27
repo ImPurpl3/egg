@@ -811,7 +811,10 @@ class Misc(Cog):
 
     @staticmethod
     def download_video(url: str) -> Optional[str]:
-        with YoutubeDL() as ytdl:
+        with YoutubeDL({
+            "outtmpl": "downloads/%(id)s-%(title)s.%(ext)s",
+            "quiet": True
+        }) as ytdl:
             data = ytdl.extract_info(url, download=False)
             filename = ytdl.prepare_filename(data)
 
