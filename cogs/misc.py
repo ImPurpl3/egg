@@ -837,18 +837,21 @@ class Misc(Cog):
         return filename
 
     @commands.command()
+    @commands.max_concurrency(1, wait=True)
     async def ytdl(self, ctx: Context, *, url: str):
-        func = partial(self.download_video, url.strip("<>"))
-        filename = await self.bot.loop.run_in_executor(None, func)
+        async with ctx.typing():
+            func = partial(self.download_video, url.strip("<>"))
+            filename = await self.bot.loop.run_in_executor(None, func)
 
-        if not filename:
-            embed = utils.BaseEmbed(
-                ctx,
-                description="This is most likely due to the video being over 8 MB in all qualities."
-            )
-            embed.set_author(name="No supported format found.", icon_url=ctx.me.avatar_url)
+            if not filename:
+                embed = utils.BaseEmbed(
+                    ctx,
+                    description="This is most likely due to the video being over 8 MB in all qualities."
+                )
+                embed.set_author(name="No supported format found.", icon_url=ctx.me.avatar_url)
 
-        await ctx.send(file=discord.File(filename))
+            await ctx.reply(file=discord.File(filename), mention_author=True)
+        
         os.remove(filename)
 
 
