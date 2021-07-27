@@ -34,7 +34,7 @@ import textwrap
 import time
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import Type
+from typing import Optional, Type
 from urllib import parse
 
 import aiohttp
@@ -42,7 +42,7 @@ import discord
 import parsedatetime as pdt
 from discord.ext import commands
 from discord.ext.commands import BadArgument, Cog, CommandError, Context
-from discord.utils import escape_markdown, find, get, sleep_until
+from discord.utils import escape_markdown, find, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 from youtube_dl import YoutubeDL
 
@@ -810,7 +810,7 @@ class Misc(Cog):
             await utils.display_error(ctx, error)
 
     @staticmethod
-    def download_video(url: str):
+    def download_video(url: str) -> Optional[str]:
         with YoutubeDL() as ytdl:
             data = ytdl.extract_info(url, download=False)
             filename = ytdl.prepare_filename(data)
@@ -822,9 +822,12 @@ class Misc(Cog):
                 data["formats"]
             ))
 
+            if not video_formats:
+                return None
+
             video = max(video_formats, key=lambda i: i["height"])
 
-            ytdl.params["format"] = f"{audio['format_id']}+{video['format_id']}"
+            ytdl.params["format"] = f"{video['format_id']}+{audio['format_id']}"
 
             ytdl.extract_info(url)
 
@@ -834,6 +837,13 @@ class Misc(Cog):
     async def ytdl(self, ctx: Context, *, url: str):
         func = partial(self.download_video, url.strip("<>"))
         filename = await self.bot.loop.run_in_executor(None, func)
+
+        if not filename:
+            embed = utils.BaseEmbed(
+                ctx,
+                description="This is most likely due to the video being over 8 MB in all qualities."
+            )
+            embed.set_author(name="No supported format found.", icon_url=ctx.me.avatar_url)
 
         await ctx.send(file=discord.File(filename))
         os.remove(filename)
