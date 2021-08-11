@@ -129,7 +129,7 @@ class Levels(Cog):
 
         # draw level % in center of bar if it's wide enough, otherwise a bit to its right
         bar_center = (_, center_h) = ((222 + 222+bar_length) // 2, (245 + 189) // 2)
-        if level_prog >= 0.22:
+        if level_prog >= 0.25:
             bar_center = (_, center_h) = ((222 + 222+bar_length) // 2, (245 + 189) // 2)
             t_draw.text(bar_center, f"{floor(level_prog * 100)}%", WHITE, prog_font, "mm")
         else:
