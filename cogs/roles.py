@@ -66,7 +66,7 @@ class Roles(Cog):
            require "quotes" around them if it's multiple words.
 
            Example usage:
-           egg roles add 797953789826302002 "flying disk" 🥏 Gives access to the flying disk channel.
+           egg roles add 797953789826302002 "flying disk" 🥏 Gives access to flying disk channel.
                - In case a role called flying disk doesn't exist, it'll create one on the fly.
         """
         if emoji.id and emoji.id not in [e.id for e in self.bot.emojis]:
