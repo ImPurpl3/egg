@@ -56,7 +56,7 @@ CMYK_REGEX = re.compile(
     r"^(?:cmyk\()?((?:[0-9]{1,3}%?(?:,\s*|\s+)){3}[0-9]{1,3}%?)\)?$", re.IGNORECASE
 )
 
-REPO = "https://github.com/ValkyriaKing711/egg/"
+REPO = "https://github.com/vveeps/egg/"
 
 
 class Misc(Cog):
