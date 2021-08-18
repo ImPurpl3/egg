@@ -42,7 +42,7 @@ class Events(Cog):
     """A cog containing the bot's event listeners."""
     def __init__(self, bot: utils.Bot):
         self.bot = bot
-        self.previous_q_author = None
+        self.previous_j_author = None
 
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Type[commands.CommandError]):
@@ -60,11 +60,11 @@ class Events(Cog):
 
         if channel.id == 662063429879595009:
             contents = [message.activity, message.application, message.attachments,
-                        message.embeds, message.content != "Q"]
-            if message.author.id == self.previous_q_author or any(i for i in contents):
+                        message.embeds, message.content != "j"]
+            if message.author.id == self.previous_j_author or any(i for i in contents):
                 return await message.delete()
 
-            self.previous_q_author = message.author.id
+            self.previous_j_author = message.author.id
 
         if message.content.lower() == "gg":
             await message.add_reaction("\N{NEGATIVE SQUARED LATIN CAPITAL LETTER B}\ufe0f")
