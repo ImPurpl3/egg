@@ -42,7 +42,14 @@ class Events(Cog):
     """A cog containing the bot's event listeners."""
     def __init__(self, bot: utils.Bot):
         self.bot = bot
-        self.previous_j_author = None
+        self.previous_number = None
+
+        self.bot.loop.create_task(self.fetch_last_number)
+
+    async def fetch_last_number(self):
+        await self.bot.wait_until_ready()
+        last_message = (await self.bot.get_channel(662063429879595009).history(limit=5).flatten())[0]
+        self.previous_number = int(last_message.content), last_message.author.id
 
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Type[commands.CommandError]):
@@ -58,13 +65,17 @@ class Events(Cog):
         """Fired each time a message is sent."""
         channel = message.channel
 
+        previous_number, previous_author = self.previous_number
+
         if channel.id == 662063429879595009:
             contents = [message.activity, message.application, message.attachments,
-                        message.embeds, message.content != "j"]
-            if message.author.id == self.previous_j_author or any(i for i in contents):
+                        message.embeds, not message.content.isdigit()]
+            if message.author.id == previous_author or any(i for i in contents):
+                return await message.delete()
+            elif int(message.content) != previous_number + 1:
                 return await message.delete()
 
-            self.previous_j_author = message.author.id
+            self.previous_number = previous_number + 1, message.author.id
 
         if message.content.lower() == "gg":
             await message.add_reaction("\N{NEGATIVE SQUARED LATIN CAPITAL LETTER B}\ufe0f")
@@ -132,6 +143,9 @@ class Events(Cog):
             if payload.data.get("guild_id") != 527932145273143306 or member.bot:
                 return
 
+            if channel_id == 662063429879595009:
+                return await (await self.bot.get_channel(channel_id).fetch_message(message_id)).delete()
+
             embed = discord.Embed(color=EGG_COLOR, timestamp=datetime.utcnow())
             embed.set_author(name="A message was edited.", icon_url=member.avatar.url)
 
@@ -155,8 +169,7 @@ class Events(Cog):
                 return
 
             if message.channel.id == 662063429879595009:
-                if payload.data["content"] != "E":
-                    await message.delete()
+                await message.delete()
 
             if not payload.data.get("content") or message.content == payload.data["content"]:
                 return
