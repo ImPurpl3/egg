@@ -30,7 +30,7 @@ from datetime import datetime
 from typing import Type, Union
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
 
 from .utils import utils
@@ -44,12 +44,16 @@ class Events(Cog):
         self.bot = bot
         self.previous_number = None
 
-        self.bot.loop.create_task(self.fetch_last_number())
+        self.refresh_previous_number.start()
 
-    async def fetch_last_number(self):
+    async def fetch_previous_number(self):
         await self.bot.wait_until_ready()
-        last_message = (await self.bot.get_channel(662063429879595009).history(limit=5).flatten())[0]
-        self.previous_number = int(last_message.content), last_message.author.id
+        previous_message = (await self.bot.get_channel(662063429879595009).history(limit=5).flatten())[0]
+        self.previous_number = int(previous_message.content), previous_message.author.id
+
+    @tasks.loop(seconds=30)
+    async def refresh_previous_number(self):
+        await self.fetch_previous_number()
 
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Type[commands.CommandError]):
