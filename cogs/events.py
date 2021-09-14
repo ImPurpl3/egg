@@ -44,7 +44,7 @@ class Events(Cog):
         self.bot = bot
         self.previous_number = None
 
-        self.bot.loop.create_task(self.fetch_last_number)
+        self.bot.loop.create_task(self.fetch_last_number())
 
     async def fetch_last_number(self):
         await self.bot.wait_until_ready()
