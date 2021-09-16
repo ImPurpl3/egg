@@ -394,7 +394,7 @@ async def display_error(ctx: Context, error: Type[commands.CommandError]):
         message = error.args[0]
 
     embed = Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-    embed.set_author(name="Command exception caught.", icon_url=ctx.me.avatar.url)
+    embed.set_author(name="Command exception caught.", icon_url=ctx.me.display_avatar.url)
 
     embed.add_field(name="Exception", value=f"`{name}: {message}`", inline=False)
 

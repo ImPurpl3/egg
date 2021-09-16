@@ -198,7 +198,7 @@ class Levels(Cog):
 
         guild = member.guild
         name = str(member)
-        avatar_url = str(member.avatar.replace(512, static_format="png"))
+        avatar_url = str(member.display_avatar.replace(512, static_format="png"))
 
         if name != data["last_known_as"] or avatar_url != data["last_known_avatar_url"]:
             await self.bot.db.execute(
@@ -239,7 +239,7 @@ class Levels(Cog):
             """,
             message.author.id,
             str(message.author),
-            str(message.author.avatar.replace(static_format="png"))
+            str(message.author.display_avatar.replace(static_format="png"))
         )
         data = await self.bot.db.fetchone("SELECT * FROM levels WHERE id = ?", message.author.id)
         level = data["level"]
@@ -281,10 +281,10 @@ class Levels(Cog):
                 str(after),
                 after.id
             )
-        if str(before.avatar.url) != str(after.avatar.url):
+        if str(before.display_avatar.url) != str(after.display_avatar.url):
             await self.bot.db.execute(
                 "UPDATE levels SET last_known_avatar_url = ? WHERE id = ?",
-                str(after.avatar.replace(static_format="png", size=512)),
+                str(after.display_avatar.replace(static_format="png", size=512)),
                 after.id
             )
 
@@ -293,7 +293,7 @@ class Levels(Cog):
         """Shows a user's rank information."""
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
-        avatar = await user.full.avatar.replace(size=256, format="png").read()
+        avatar = await user.full.display_avatar.replace(size=256, format="png").read()
         users = await self.bot.db.fetch("SELECT * FROM levels")
         func = partial(self.generate_card, user, avatar, users)
 
