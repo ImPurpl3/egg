@@ -86,7 +86,7 @@ class Levels(Cog):
         im.alpha_composite(out)
 
         avatar = Image.open(BytesIO(avatar_bytes)).convert("RGBA").resize((215, 215), Image.LANCZOS)
-    
+
         size = (avatar.size[0] * 5, avatar.size[1] * 5)  # exaggerated size for the circle mask
         mask = Image.new("L", size, 0)
         ImageDraw.Draw(mask).ellipse((0, 0) + size, fill=255)
@@ -102,7 +102,7 @@ class Levels(Cog):
         # paste avatar on an empty layer
         avy_layer = Image.new("RGBA", im.size, TRANSPARENT)
         avy_layer.paste(avatar, (56, 32))
-    
+
         # merge avatar on top of everything else (progress bar etc.)
         im.alpha_composite(avy_layer)
 
@@ -133,7 +133,7 @@ class Levels(Cog):
             bar_center = (_, center_h) = ((222 + 222+bar_length) // 2, (245 + 189) // 2)
             t_draw.text(bar_center, f"{floor(level_prog * 100)}%", WHITE, prog_font, "mm")
         else:
-            # to avoid overlapping, if bar length is less than 5% then pretend it is 5%  
+            # to avoid overlapping, if bar length is less than 5% then pretend it is 5%
             next_to_bar = (222 + max(floor(552 * 0.05), bar_length) + 10, center_h)
             t_draw.text(next_to_bar, f"{floor(level_prog * 100)}%", WHITE, prog_font, "lm")
 
@@ -169,7 +169,7 @@ class Levels(Cog):
         else:
             n_messages = f"{min_messages} - {max_messages}"
             plural = True
-    
+
         small_font = ImageFont.truetype(REGULAR_FONT, 14)
         t_draw.text(
             (815, 270),
@@ -198,7 +198,7 @@ class Levels(Cog):
 
         guild = member.guild
         name = str(member)
-        avatar_url = str(member.display_avatar.replace(512, static_format="png"))
+        avatar_url = str(member.display_avatar.replace(size=512, static_format="png"))
 
         if name != data["last_known_as"] or avatar_url != data["last_known_avatar_url"]:
             await self.bot.db.execute(
