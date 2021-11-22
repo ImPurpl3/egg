@@ -861,6 +861,9 @@ class Misc(Cog):
 
     @commands.command(aliases=["pick"])
     async def choose(self, ctx: Context, *options: commands.clean_content):
+        if len(options) < 2:
+            return await ctx.send("can't pick from less than two options")
+
         await ctx.send(random.SystemRandom().choice(options))
 
 
