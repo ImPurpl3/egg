@@ -40,6 +40,7 @@ from urllib import parse
 import aiohttp
 import discord
 import parsedatetime as pdt
+from discord import AllowedMentions
 from discord.ext import commands
 from discord.ext.commands import BadArgument, Cog, CommandError, Context
 from discord.utils import escape_markdown, find, sleep_until
@@ -860,7 +861,7 @@ class Misc(Cog):
 
     @commands.command(aliases=["pick"])
     async def choose(self, ctx: Context, *options: str):
-        await ctx.send(random.SystemRandom().choice(options))
+        await ctx.send(random.SystemRandom().choice(options), allowed_mentions=AllowedMentions.none())
 
 
 def setup(bot: utils.Bot):
