@@ -43,7 +43,7 @@ import parsedatetime as pdt
 from discord import AllowedMentions
 from discord.ext import commands
 from discord.ext.commands import BadArgument, Cog, CommandError, Context
-from discord.utils import escape_markdown, escape_mentions, find, sleep_until
+from discord.utils import escape_markdown, find, sleep_until
 from PIL import Image, ImageDraw, ImageFont
 from youtube_dl import YoutubeDL
 
@@ -860,8 +860,8 @@ class Misc(Cog):
         # os.remove(filename)
 
     @commands.command(aliases=["pick"])
-    async def choose(self, ctx: Context, *options: str):
-        await ctx.send(escape_mentions(random.SystemRandom().choice(options)))
+    async def choose(self, ctx: Context, *options: commands.clean_content):
+        await ctx.send(random.SystemRandom().choice(options))
 
 
 def setup(bot: utils.Bot):
