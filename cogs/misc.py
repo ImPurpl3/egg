@@ -61,6 +61,7 @@ REPO = "https://github.com/vveeps/egg/"
 
 class Misc(Cog):
     """A cog containing miscellaneous commands."""
+
     def __init__(self, bot: utils.Bot):
         self.bot = bot
 
@@ -231,7 +232,8 @@ class Misc(Cog):
             await ctx.send(embed=embed)
         except discord.HTTPException:
             embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-            embed.set_author(name="Definition over 2048 characters.", icon_url=ctx.me.display_avatar.url)
+            embed.set_author(name="Definition over 2048 characters.",
+                             icon_url=ctx.me.display_avatar.url)
             embed.add_field(name="Link to definition", value=item["permalink"])
             await ctx.send(embed=embed)
 
@@ -256,7 +258,7 @@ class Misc(Cog):
 
         if role in ctx.author.roles:
             return
-        
+
         embed = discord.Embed(
             description="You can now send messages in <#704713087772524565>.",
             color=EGG_COLOR,
@@ -419,7 +421,6 @@ class Misc(Cog):
             color=discord.Color(int(data["hex"]["clean"], 16)),
             timestamp=ctx.message.created_at
         )
-
 
         if name.lower() == data["name"]["value"].lower():
             name = data["name"]["value"]
@@ -614,7 +615,8 @@ class Misc(Cog):
                 for i in (527939593128116232, 701823598360264774, 527939296829898753)
             ):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.display_avatar.url)
+                embed.set_author(name="I can't ban this member.",
+                                 icon_url=ctx.me.display_avatar.url)
                 return await ctx.send(embed=embed)
 
         try:
@@ -639,7 +641,8 @@ class Misc(Cog):
                 for i in (527939593128116232, 701823598360264774, 527939296829898753)
             ):
                 embed = discord.Embed(color=EGG_COLOR, timestamp=ctx.message.created_at)
-                embed.set_author(name="I can't ban this member.", icon_url=ctx.me.display_avatar.url)
+                embed.set_author(name="I can't ban this member.",
+                                 icon_url=ctx.me.display_avatar.url)
                 return await ctx.send(embed=embed)
 
         try:
@@ -706,7 +709,7 @@ class Misc(Cog):
             "http://inspirobot.me/api?generate=true"
         ) as resp:
             url = await resp.text()
-        
+
         embed = utils.BaseEmbed(ctx)
         embed.set_author(
             name="inspirobot.me",
@@ -751,7 +754,7 @@ class Misc(Cog):
 
             players_formatted = "\n".join(names) if len(names) <= 10 else \
                 "\n".join(names[:10]) + f"\n*and {len(names) - 10} more players*"
-            
+
             embed.add_field(name="Players", value=players_formatted, inline=False)
 
         await ctx.send(embed=embed)
@@ -821,7 +824,7 @@ class Misc(Cog):
             audio = find(lambda i: i["ext"] == "m4a", data["formats"])
             video_formats = list(filter(
                 lambda i: i["ext"] == "mp4" and i["filesize"] is not None and i["acodec"] == "none"
-                          and i["filesize"] + audio["filesize"] <= 8000000,
+                and i["filesize"] + audio["filesize"] <= 8000000,
                 data["formats"]
             ))
 
@@ -836,24 +839,28 @@ class Misc(Cog):
 
         return filename
 
-    @commands.command()
-    @commands.max_concurrency(1, wait=True)
-    async def ytdl(self, ctx: Context, *, url: str):
-        async with ctx.typing():
-            func = partial(self.download_video, url.strip("<>"))
-            filename = await self.bot.loop.run_in_executor(None, func)
+    # @commands.command()
+    # @commands.max_concurrency(1, wait=True)
+    # async def ytdl(self, ctx: Context, *, url: str):
+        # async with ctx.typing():
+        #     func = partial(self.download_video, url.strip("<>"))
+        #     filename = await self.bot.loop.run_in_executor(None, func)
 
-            if not filename:
-                embed = utils.BaseEmbed(
-                    ctx,
-                    description="This is most likely due to the video being over 8 MB in all qualities."
-                )
-                embed.set_author(name="No supported format found.", icon_url=ctx.me.display_avatar)
-                return await ctx.send(embed=embed)
+        #     if not filename:
+        #         embed = utils.BaseEmbed(
+        #             ctx,
+        #             description="This is most likely due to the video being over 8 MB in all qualities."
+        #         )
+        #         embed.set_author(name="No supported format found.", icon_url=ctx.me.display_avatar)
+        #         return await ctx.send(embed=embed)
 
-            await ctx.reply(file=discord.File(filename), mention_author=True)
-        
-        os.remove(filename)
+        #     await ctx.reply(file=discord.File(filename), mention_author=True)
+
+        # os.remove(filename)
+
+    @commands.command(aliases=["pick"])
+    async def choose(self, ctx: Context, *options: str):
+        await ctx.send(random.SystemRandom().choice(options))
 
 
 def setup(bot: utils.Bot):
