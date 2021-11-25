@@ -446,7 +446,7 @@ class Misc(Cog):
 
     async def fetch_color(self, value: str, color_format: str):
         url = f"http://thecolorapi.com/id/?{color_format}={value}"
-        async with self.bot.session.get(url) as resp:
+        async with self.bot.session.get(url, headers={"Accept": "application/json"}) as resp:
             return await resp.json()
 
     @staticmethod
