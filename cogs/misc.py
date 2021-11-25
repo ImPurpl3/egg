@@ -445,7 +445,7 @@ class Misc(Cog):
         await ctx.send(embed=embed, file=image)
 
     async def fetch_color(self, value: str, color_format: str):
-        url = f"http://thecolorapi.com/id?format=json&{color_format}={value}"
+        url = f"https://www.thecolorapi.com/id?format=json&{color_format}={value}"
         async with self.bot.session.get(url, headers={"Accept": "application/json"}) as resp:
             return await resp.json()
 
