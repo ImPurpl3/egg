@@ -294,7 +294,7 @@ class Levels(Cog):
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
 
         # avatar = await user.full.display_avatar.replace(size=256, format="png").read()
-        avatar = await (await self.bot.fetch_user(user.full.id)).default_avatar.replace(size=256, format="png").read()
+        avatar = await (await self.bot.fetch_user(user.full.id)).display_avatar.replace(size=256, format="png").read()
         users = await self.bot.db.fetch("SELECT * FROM levels")
         func = partial(self.generate_card, user, avatar, users)
 
