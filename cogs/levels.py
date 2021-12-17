@@ -288,7 +288,7 @@ class Levels(Cog):
                 after.id
             )
 
-    @commands.command()
+    @commands.command(aliases = ['level'])
     async def rank(self, ctx: Context, *, user: utils.RankedUser = None):
         """Shows a user's rank information."""
         user = user or await utils.RankedUser.convert(ctx, str(ctx.author.id))
